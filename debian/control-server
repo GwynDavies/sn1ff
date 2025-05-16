@@ -1,0 +1,11 @@
+Package: sn1ff-server
+Version: 1.0-1
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libc6 (>= 2.7), libncurses6 (>= 6.4), libuuid1 (>= 1.3)
+Maintainer: Gwyn Davies <87286621+GwynDavies@users.noreply.github.com>
+Description: Utility for running and monitoring system and security checks
+ A lightweight tool for creating, executing, and monitoring system and
+ cybersecurity checks. Designed for Debian-based systems, it primarily
+ supports Bash scripting to automate and log routine security tasks.

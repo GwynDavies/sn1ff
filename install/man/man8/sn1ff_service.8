@@ -1,0 +1,57 @@
+.TH SN1FF_SERVICE 8
+.SH NAME
+sn1ff_service \- daemon service to receive and manage sn1ff check results
+.SH SYNOPSIS
+.B systemctl
+[\fISYSTEMD COMMAND\fR] sn1ff
+.PP
+.B journalctl
+[\fI-fu\fR] sn1ff
+.PP
+.B sn1ff_service
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+sn1ff_service is a systemd daemon service, that receives sn1ff check results either locallay - or more typically from other network hosts.
+.PP
+It can then manage the lifecycle of the check results, making them available for viewing by the sn1ff_monitor program, and deleting them at the user's request or if their time-to-live (TTL) has expired.
+.PP
+The check results are simply text files. They are received from other network hosts, using SCP with key authentication. From the local host, they are simply copied.
+.SS SYSTEMD
+The service is controlled and monitored via the usual systemd commands such as:
+.BR systemctl (1),
+.BR journalctl (1).
+.PP
+.SH SYSTEMD COMMAND
+.TP
+.B start
+.TP
+.B stop
+.TP
+.B restart
+.TP
+.B disable
+.TP
+.B enable
+.PP
+.SH OPTIONS
+.TP
+.B \-h
+Show available help information.
+.SH FURTHER INFORMATION
+For details of installation and example checks, see the sn1ff Github repository:
+.PP
+.B https://github.com/GwynDavies/sn1ff
+.PP
+.SH SEE ALSO
+.SS Other related pages on the sn1ff server:
+.BR sn1ff_cleaner (8),
+.BR sn1ff (7),
+.BR sn1ff_monitor (1).
+.SS Other related pages on sn1ff clients:
+.BR sn1ff_client (1),
+.BR sn1ff_license (1),
+.BR sn1ff_conf (1).
+.SH AUTHOR
+Written by Gwyn Davies
+.PP
+.B https://github.com/GwynDavies/sn1ff

@@ -1,0 +1,12 @@
+BasedOnStyle: GNU
+IndentWidth: 2
+TabWidth: 2
+UseTab: Never
+BreakBeforeBraces: GNU
+AllowShortFunctionsOnASingleLine: None
+EmptyLineBeforeAccessModifier: Always
+AlwaysBreakAfterReturnType: None
+SpaceBeforeParens: ControlStatements
+InsertTrailingCommas: None
+KeepEmptyLinesAtTheStartOfBlocks: false
+

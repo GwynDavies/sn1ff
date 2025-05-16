@@ -1,0 +1,56 @@
+MonTTY
+Host: penguin
+IPv4: 100.115.92.202
+Status: ALERT
+At: January 27, 2025 17:34:09
+
+chk_001_bash_listening_ports_with_ss.py - LISTENING TCP PORTS          (OKAY)     
+
+chk_002_python_host_cpu.py - HOST CPU                                  (OKAY)     
+CPU usage :   0.0%
+    clock :   1.1GHz
+    count :   2
+
+chk_003_cla_python_host_cpu_etc.py- HOST CPU ETC.                      (OKAY)     
+ (+) SystemCpuDataCheck                                               .(OKAY).
+CPU usage :   0.2%
+    clock :   1.1GHz
+    count :   2
+ (+) SystemMemDataCheck                                               .(OKAY).
+Mem usage :   1.8%
+ (+) SystemDiskDataCheck                                              .(OKAY).
+Disk      :  parttion:/  usage: 77.2%
+ (+) SystemNetDataCheck                                               .(OKAY).
+Net       :  errin   :   0
+             errout  :   0
+             dropin  :   0
+             dropout :   0
+ (+) SystemBootDataCheck                                              .(OKAY).
+Boot      :  11th January 2025 11:35:27
+
+chk_004_clf_bash_ss.py - Check FILTER                                  (OKAY)     
+ (f) Filter HOST not equal "fakehost1"                                .(OKAY).
+-> Test host_not_eq fakehost1
+ (f) CheckSSPorts - LISTENING TCP PORTS                               .(OKAY).
+
+chk_007_clf_debian_ubuntu_unattended_upgrades.py - Check FILTER        (ALERT)     
+ (f) Filter DISTRO in "debian / ubuntu"                               .(OKAY).
+-> Test distro_in debian
+ubuntu
+ (f) Check Service - UNATTENDED UPGRADES                              .(ALERT).
+Service unattended-upgrades is NOT installed
+
+chk_008_clf_rhel_dnf_automatic.py - Check FILTER                       (NA)     
+ (f) Filter DISTRO in "rhel"                                          .(NA).
+-> Test distro_in rhel
+
+
+SUMMARY:
+
+     chk_001_bash_listening_ports_with_ss.py - LISTENING TCP PORTS          (OKAY)     
+     chk_002_python_host_cpu.py - HOST CPU                                  (OKAY)     
+     chk_003_cla_python_host_cpu_etc.py- HOST CPU ETC.                      (OKAY)     
+     chk_004_clf_bash_ss.py - Check FILTER                                  (OKAY)     
+     chk_007_clf_debian_ubuntu_unattended_upgrades.py - Check FILTER        (ALERT)     
+     chk_008_clf_rhel_dnf_automatic.py - Check FILTER                       (NA)     
+

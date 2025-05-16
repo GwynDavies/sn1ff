@@ -1,0 +1,13 @@
+[Unit]
+Description=Sn1ff Service
+[Service]
+Type=simple
+ExecStart=/usr/bin/sn1ff_service
+Restart=on-failure
+RestartSec=10
+KillMode=process
+User=sn1ff
+Group=sn1ff
+UMask=000
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+USER="sn1ff"
+GROUP="sn1ff"
+
+# Only perform cleanup during actual removal (not purge or upgrade)
+
+if [ "$1" = "remove" ]; then
+  # Remove all users from the group, if it exists
+  if getent group "$GROUP" >/dev/null; then
+    MEMBERS=$(getent group "$GROUP" | cut -d: -f4 | tr ',' ' ')
+    for member in $MEMBERS; do
+      gpasswd -d "$member" "$GROUP" || true
+    done
+  fi
+
+  # Delete the user (safe even if already removed)
+  if id "$USER" >/dev/null 2>&1; then
+    deluser --system "$USER" || true
+  fi
+
+  # Now delete the group (safe now that no one is using it)
+  if getent group "$GROUP" >/dev/null; then
+    groupdel "$GROUP" || true
+  fi
+
+  # Remove the directory created for the service
+  DIR="/home/chroot/sn1ff"
+  if [ -d "$DIR" ]; then
+    echo "Removing directory: $DIR"
+    rm -rf "$DIR"
+  fi
+fi
+
+# Exit successfully
+
+exit 0

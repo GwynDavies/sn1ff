@@ -1,0 +1,5 @@
+**/*.log
+post_install_server.sh
+post_install_client.sh
+TODO.md
+compare_dirs.sh

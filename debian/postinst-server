@@ -1,0 +1,50 @@
+#!/bin/sh
+set -e
+
+# Create the (non-login) sn1ff server user, with a home directory
+
+if ! id "sn1ff" >/dev/null 2>&1; then
+  echo "Creating sn1ff server user and group -> sn1ff:sn1ff..."
+  useradd --system --create-home --shell /usr/sbin/nologin --comment "Sn1ff Server User" -m -d /home/chroot/sn1ff sn1ff
+
+  # Set ownership and permissions
+  chown root:root /home/chroot
+  chown root:root /home/chroot/sn1ff
+  chmod 755 /home/chroot
+  chmod 755 /home/chroot/sn1ff
+fi
+
+# Create the SCP UPLOADS directory for your service
+
+DIR="/home/chroot/sn1ff/uploads"
+if [ ! -d "$DIR" ]; then
+  echo "Creating directory: $DIR"
+  mkdir -p "$DIR"
+
+  # Set appropriate ownership and permissions
+  chown sn1ff:sn1ff "$DIR"
+  chmod 770 "$DIR"
+fi
+
+# Create the .ssh directoryfor the and authorized_keys for SCP access
+
+SSH_DIR="/home/chroot/sn1ff/.ssh"
+if [ ! -d "$SSH_DIR" ]; then
+  echo "Creating SSH directory for sn1ff user..."
+  mkdir -p "$SSH_DIR"
+  chown sn1ff:sn1ff "$SSH_DIR"
+  chmod 700 "$SSH_DIR"
+fi
+
+# Enable and reload the sn1ff service
+
+if [ "$1" = "configure" ]; then
+  deb-systemd-helper daemon-reexec || true
+  deb-systemd-helper daemon-reload || true
+  deb-systemd-invoke enable sn1ff.service || true
+  deb-systemd-invoke start sn1ff.service || true
+fi
+
+# Exit successfully
+
+exit 0

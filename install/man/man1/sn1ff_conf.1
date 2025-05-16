@@ -1,0 +1,65 @@
+.TH SN1FF_CONF 1
+.SH NAME
+sn1ff_conf \- get values from configuration file
+.SH SYNOPSIS
+.B sn1ff_conf
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+The sn1ff_conf program, allows users or scripts to retrieve configuration values from the sn1ff configuration file.
+.PP
+The values are typically changed during installation, but can be changed at any time by editing the configuration file.
+.PP
+The configuration file is /etc/sn1ff/sn1ff.conf.
+.PP
+.SH OPTIONS
+.TP
+.B \-h
+Show available help information.
+.TP
+.B \-t
+Retrieve time-to-live (TTL) values for ALRT, WARN, OKAY and NONE statuses. The values are returned as a comma separated list "n,n,n,n", where the order of the TTL values is "ALRT,WARN,OKAY,NONE".
+.TP
+.B \-a 
+Retrieve server address (IP or hostname) of the sn1ff server. A default value of "192.0.2.0" is supplied by default, and must be changed in the configuration file during installation.
+.TP
+.SH EXAMPLES
+Here are usage examples:
+
+.nf
+  Get time-to-live (TTL) values for the different check result statuses:
+
+   $ sn1ff_conf -t b        
+   5,4,3,2
+
+     Here we retried the time-to-live (TTL) values of:
+       ALRT TTL = 5 minutes,
+       WARN TTL = 4 minutes,
+       OKAY TTL = 3 minutes,
+       NONE TTL = 2 minutes,
+
+  Get the server address for the sn1ff server:
+
+    $ sn1ff_Conf -a
+    192.0.2.0
+
+      Here we retrieved the sn1ff server IP address
+.fi
+.SH FURTHER INFORMATION
+For details of installation and example checks, see the sn1ff Github repository:
+.PP
+.B https://github.com/GwynDavies/sn1ff
+.PP
+.SH SEE ALSO
+.SS Other related pages on the sn1ff server:
+.BR sn1ff_service (8),
+.BR sn1ff_cleaner (8),
+.BR sn1ff (7),
+.BR sn1ff_monitor (1).
+.SS Other related pages on a sn1ff client:
+.BR sn1ff_client (1).
+.BR sn1ff_license (1).
+.SH AUTHOR
+Written by Gwyn Davies
+.PP
+.B https://github.com/GwynDavies/sn1ff
+

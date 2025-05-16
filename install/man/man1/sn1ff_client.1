@@ -1,0 +1,72 @@
+.TH SN1FF_CLIENT 1
+.SH NAME
+sn1ff_client \- create check results for users
+.SH SYNOPSIS
+.B sn1ff_client
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+The sn1ff_client program, allows users to first create a sn1ff check results file, append check results and then send the completed file to the sn1ff_service.
+.PP
+Checks are written in almost any scripting or programming language (typically Bash). These "checks" use the sn1ff_client as follows:
+.PP
+.SH OPTIONS
+.TP
+.B \-h
+Show available help information.
+.TP
+.B \-b
+"Begin" or create the check results file, and get the automatically created path/filename
+.TP
+.B \-e 
+"End" and send the completed check results file to the sn1ff_service
+.TP
+.B \-f
+File path of sn1ff file
+.TP
+.B \-s
+Status of sn1ff file [ALRT|WARN|OKAY|NONE]
+.TP
+.B \-t
+Time-to-live (TTL) for the file in minutes (e.g. 5 = 5 minutes)
+.TP
+.B \-a
+Address (hostname or ip) of network sn1ff server. Do not set if the client is on the sn1ff server host (local check)
+.SH EXAMPLES
+Here are usage examples:
+
+.nf
+   Begin sn1ff check file. This command returns the created sniff file
+   
+     sn1ff_client -b        
+
+
+   End sn1ff check results file and:
+
+     Send it to the network sn1ff server:
+       sn1ff_client -e -f <created sn1ff file> -s <state> -t <TTL> -a <IP or hostname>
+       sn1ff_client -e -f ~/sn1ff/<GUID>.snff -s ALRT -t 5 -a 192.0.2.0
+
+     Send it to the local (same host) sn1ff server (no -a):
+       sn1ff_client -e -f <created sn1ff file> -s <state> -t <TTL>
+       sn1ff_client -e -f ~/sn1ff/<GUID>.snff -s ALRT -t 5 
+
+.fi
+.SH FURTHER INFORMATION
+For details of installation and example checks, see the sn1ff Github repository:
+.PP
+.B https://github.com/GwynDavies/sn1ff
+.PP
+.SH SEE ALSO
+.SS Other related pages on the sn1ff server:
+.BR sn1ff_service (8),
+.BR sn1ff_cleaner (8),
+.BR sn1ff (7),
+.BR sn1ff_monitor (1).
+.SS Other related pages on sn1ff clients:
+.BR sn1ff_license (1),
+.BR sn1ff_conf (1).
+.SH AUTHOR
+Written by Gwyn Davies
+.PP
+.B https://github.com/GwynDavies/sn1ff
+

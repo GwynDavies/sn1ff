@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+if command -v deb-systemd-invoke >/dev/null; then
+  deb-systemd-invoke stop sn1ff.service >/dev/null || true
+  deb-systemd-helper daemon-reload || true
+fi
+
+# Exit successfully
+
+exit 0

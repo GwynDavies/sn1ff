@@ -1,0 +1,104 @@
+.TH SN1FF_MONITOR 1 
+.SH NAME
+sn1ff_monitor \- display sn1ff check results files in a terminal
+.SH SYNOPSIS
+.B sn1ff_monitor
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+sn1ff_monitor is a command-line program, that allows users to view the sn1ff check results files. It must be run on the sn1ff server, as it communicates directly with.
+.PP
+Once started, the sn1ff_monitor connects to the sn1ff_service and requests the current check results files. It then displays each of the files in turn, to the user. 
+.PP
+The user can interact with sn1ff_monitor, by typing one of the following commands:
+.PP
+.SS User commands:
+
+.TP
+.B q
+quit the sn1ff_monitor
+
+.TP
+.B f
+make the display go faster
+
+.TP
+.B s
+make the display go slower
+
+.TP
+.B ^s
+pause the display - CTRL-S
+
+.TP
+.B ^q
+resume the display - CTRL-Q
+
+.TP
+.B d
+delete the currently displayed check results file
+
+.PP
+.SH OPTIONS
+.TP
+.B \-h
+Show available help information.
+.PP
+.SH EXAMPLE(S)
+Check files are displayed as a HEADER and BODY sections.
+.PP
+.SS DISPLAY HEADER
+Gives the attributes of the check results file, notably its state which mist be from [ALRT|WARN|OKAY|NONE].
+.PP
+The choice and interpretation of the status, is entirely up to the check writer.
+.PP
+.SS DISPLAY BODY
+Output from the check is then displayed. This is free-format text, and controlled by the check writer. 
+.PP
+If the amount of text to deb displayed exceeds the length of the terminal, then it will be scrolled-up as it is displayed.
+.nf
+ 
+DISPLAY HEADER
+
+            check    source       source        UTC date/time
+            status  hostname    IPv4 address   of check result
+              |        |             |                |
+              v        v             v                v
+   sn1ff     ALRT   somehost      192.0.2.0   Wed January 1, 2025 00:00:00 UTC
+   1.0-1     [q]quit [f]faster [s]slower [^s]pause [^q]resume [d]delete         <-- commands accepted
+             123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff
+     ^                                ^
+     |                                |
+   sn1ff                        filename of
+  version                       check result
+
+
+DISPLAY BODY
+
+   CHECK: Listening ports are expected
+   
+   The following listening ports are UNEXPECTED ...
+   LISTEN 0      128    0.0.0.0:ssh 0.0.0.0:*
+   LISTEN 0      128       [::]:ssh    [::]:*
+  
+   --------------------------------------------------------------------------------     
+   
+                      FAILED: LISTENING PORTS ARE EXPECTED
+.fi
+.SH FURTHER INFORMATION
+For details of installation and example checks, see the sn1ff Github repository:
+.PP
+.B https://github.com/GwynDavies/sn1ff
+.PP
+.SH SEE ALSO
+.SS Other related pages on the sn1ff server:
+.BR sn1ff_service (8),
+.BR sn1ff_cleaner (8),
+.BR sn1ff (7).
+.SS Other related pages on sn1ff clients:
+.BR sn1ff_client (1),
+.BR sn1ff_license (1),
+.BR sn1ff_conf (1).
+.SH AUTHOR
+Written by Gwyn Davies
+.PP
+.B https://github.com/GwynDavies/sn1ff
