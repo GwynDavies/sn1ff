@@ -90,7 +90,7 @@ int sn_fname_init(FName *fname) {
 }
 
 void sn_fname_dump(FName *fname) {
-  cn_log_msg(LOG_INFO,
+  cn_log_msg(LOG_DEBUG,
              "sn_fname: sn_fname_dump:\n"
              "    dir              ->%s<-\n"
              "    cname.prefix     ->%s<-\n"

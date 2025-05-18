@@ -72,7 +72,7 @@ void print_usage(int level, char *program_name) {
  '----------------------------------------------------------------*/
 
 void cleanup(void) {
-  cn_log_msg(LOG_INFO, __func__, "Exiting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Exiting ...");
   cn_log_close();
 }
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
 
   int min_log_level = sn_cfg_get_minloglevel();
   cn_log_open(argv[0], min_log_level);
-  cn_log_msg(LOG_INFO, __func__, "Starting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Starting ...");
 
   /*
    * Process options

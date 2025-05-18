@@ -186,7 +186,7 @@ void receive_message_response(int sock, MultiString *ms) {
 static int SOCKET;
 
 void cleanup(void) {
-  cn_log_msg(LOG_INFO, __func__, "Exiting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Exiting ...");
   cn_log_close();
 
   sn_ui_close();
@@ -228,7 +228,7 @@ int main(int argc, char *argv[]) {
 
   int min_log_level = sn_cfg_get_minloglevel();
   cn_log_open(argv[0], min_log_level);
-  cn_log_msg(LOG_INFO, __func__, "Starting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Starting ...");
 
   /*
    * Get sn1ff files directory, so we can display the uploaded files

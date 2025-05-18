@@ -138,15 +138,15 @@ size_t cn_multistr_reqd_buffsize(MultiString *ms) {
 }
 
 void cn_multistr_tostring(MultiString *ms) {
-  cn_log_msg(LOG_INFO, __func__, "Size                      Value\n");
-  cn_log_msg(LOG_INFO, __func__, "ms.total_length : %zu     %zu\n",
+  cn_log_msg(LOG_DEBUG, __func__, "Size                      Value\n");
+  cn_log_msg(LOG_DEBUG, __func__, "ms.total_length : %zu     %zu\n",
              sizeof(ms->total_length), ms->total_length);
-  cn_log_msg(LOG_INFO, __func__, "ms.num_strings  : %zu     %zu\n",
+  cn_log_msg(LOG_DEBUG, __func__, "ms.num_strings  : %zu     %zu\n",
              sizeof(ms->num_strings), ms->num_strings);
-  cn_log_msg(LOG_INFO, __func__, "ms.strings      : n/a     ");
+  cn_log_msg(LOG_DEBUG, __func__, "ms.strings      : n/a     ");
   for (size_t i = 0; i < ms->total_length; i++)
-    cn_log_msg(LOG_INFO, __func__, "%c", ms->strings[i]);
-  cn_log_msg(LOG_INFO, __func__, "\n");
-  cn_log_msg(LOG_INFO, __func__, "ms.capacity     : %zu     %zu\n",
+    cn_log_msg(LOG_DEBUG, __func__, "%c", ms->strings[i]);
+  cn_log_msg(LOG_DEBUG, __func__, "\n");
+  cn_log_msg(LOG_DEBUG, __func__, "ms.capacity     : %zu     %zu\n",
              sizeof(ms->capacity), ms->capacity);
 }

@@ -90,7 +90,7 @@ void send_response(int client_sock, const char *response, size_t size) {
     sent_bytes = send(client_sock, ((char *)&response_length) + total_sent,
                       sizeof(response_length) - total_sent, 0);
     if (sent_bytes <= 0) {
-      cn_log_msg(LOG_INFO, __func__, "Client disconnected - exiting");
+      cn_log_msg(LOG_DEBUG, __func__, "Client disconnected - exiting");
       exit(0);
     }
     total_sent += sent_bytes;
@@ -104,7 +104,7 @@ void send_response(int client_sock, const char *response, size_t size) {
     sent_bytes =
         send(client_sock, response + total_sent, response_len - total_sent, 0);
     if (sent_bytes <= 0) {
-      cn_log_msg(LOG_INFO, __func__, "Client disconnected - exiting");
+      cn_log_msg(LOG_DEBUG, __func__, "Client disconnected - exiting");
       exit(0);
     }
     total_sent += sent_bytes;
@@ -160,7 +160,7 @@ int get_message(int client_sock, char *msg_buffer) {
     received_bytes =
         recv(client_sock, msg_buffer + received, message_length - received, 0);
     if (received_bytes <= 0) {
-      cn_log_msg(LOG_INFO, __func__, "Client disconnected - returning -1");
+      cn_log_msg(LOG_DEBUG, __func__, "Client disconnected - returning -1");
       return -1;
     }
     received += received_bytes;
@@ -343,7 +343,7 @@ void cleanup() {
   if (sn_cfg_get_server_unix_socket())
     unlink(sn_cfg_get_server_unix_socket());
 
-  cn_log_msg(LOG_INFO, __func__, "Exiting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Exiting ...");
   cn_log_close();
 }
 
@@ -379,7 +379,7 @@ int main(int argc, char *argv[]) {
 
   int min_log_level = sn_cfg_get_minloglevel();
   cn_log_open(argv[0], min_log_level);
-  cn_log_msg(LOG_INFO, __func__, "Starting ...");
+  cn_log_msg(LOG_DEBUG, __func__, "Starting ...");
 
   /*
    * Get uploads dir to receive check results files
@@ -468,7 +468,7 @@ int main(int argc, char *argv[]) {
   // Start listening on server socket for connections
 
   listen(server_sock, 5);
-  cn_log_msg(LOG_INFO, __func__, "Listening on socket path -> %s <-",
+  cn_log_msg(LOG_DEBUG, __func__, "Listening on socket path -> %s <-",
              sn_cfg_get_server_unix_socket());
 
   /*
@@ -492,7 +492,7 @@ int main(int argc, char *argv[]) {
     if (pid == 0) {
       // Child process starts here
       handle_client(client_sock, sn1ff_files_dir);
-      cn_log_msg(LOG_INFO, __func__,
+      cn_log_msg(LOG_DEBUG, __func__,
                  "Child process finished handling client - exiting");
       exit(0);
     } else if (pid > 0) {
