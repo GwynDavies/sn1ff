@@ -8,7 +8,7 @@ sn1ff is currently only available for:
 
 <br>
 
-### 1.1 Operating system(s)
+### 1.1 Operating system
 
 * GNU/Linux.
 
@@ -63,23 +63,24 @@ You will also need to decide:
 ### 2.3 sn1ff architecture
 
 ```
-        Debian based GNU/Linux
+        Debian based GNU/Linux distributions
 
-                                                                                        .--------------.
-                                   .---------------------------.          .------------ | sn1ff client |
-                                   |       sn1ff server        |          |             '--------------'
-                                   |___________________________|       .-----.          .--------------.
-                                   |   sn1ff systemd service <-|-------| SCP |--------- | sn1ff client |
-        O      .-------------.     |   sn1ff local client      |       '-----'          '--------------'
-       /'\  ---| terminal or |-----|-> sn1ff monitor           |          |             .--------------.
-      ' ^ `    | SSH         |     '---------------------------'          '------------ | sn1ff client |
-       / \     '-------------'                                                          '--------------'
+
+                                                                     .--------------.
+                            .---------------------------.      .-----| sn1ff client |
+                            |       sn1ff server        |      |     '--------------'
+                            |___________________________|   .-----.  .--------------.
+                            |   sn1ff systemd service <-|---| SCP |--| sn1ff client |
+   O      .-------------.   |   sn1ff local client      |   '-----'  '--------------'
+  /'\  ---| terminal or |---|-> sn1ff monitor           |      |     .--------------.
+ ' ^ `    | SSH         |   '---------------------------'      '-----| sn1ff client |
+  / \     '-------------'                                            '--------------'
     
-                                              ^                                              ^
-                                              |                                              |
-                                              |                                              |
-                                      Debian installation                            Debian installation
-                                         package (.deb)                                 package (.deb)
+                                         ^                                  ^
+                                         |                                  |
+                                         |                                  |
+
+                               Debian package (.deb)              Debian package (.deb)
 ```
 
 <br><br>
