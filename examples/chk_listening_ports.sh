@@ -89,7 +89,7 @@ fi
 
 sn_append_first_header "LISTENING PORTS: CHECK LISTENING PORTS ARE EXPECTED" "$SN_FILENAME"
 
-result=$(sn_net_tcp_listeners zssh)
+result=$(sn_net_tcp_listeners ssh)
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then

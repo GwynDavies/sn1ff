@@ -17,8 +17,7 @@ sn1ff is currently only available for:
 ### 1.2 Distributions
 
 * **Debian** based GNU/Linux distributions:
-    * **Intel x64**,
-    * **ARMHF** (e.g. 32 bit Raspberry PI 2B).    TODO ???
+    * **Intel x86_64**,
 
 <br>
 
@@ -64,8 +63,8 @@ You will also need to decide:
 
 ```
         Debian based GNU/Linux distributions
-
-
+  
+  
                                                                      .--------------.
                             .---------------------------.      .-----| sn1ff client |
                             |       sn1ff server        |      |     '--------------'
@@ -79,8 +78,9 @@ You will also need to decide:
                                          ^                                  ^
                                          |                                  |
                                          |                                  |
-
-                               Debian package (.deb)              Debian package (.deb)
+  
+                                   Debian package                     Debian package
+                                       (.deb)                             (.deb)
 ```
 
 <br><br>
@@ -95,7 +95,7 @@ You will also need to decide:
 
 ### 3.1 sudo privilege
 
-You **need** to have **sudo** privilege on the sn1ff server and client(s) to perform installation.
+You **need** to have **sudo** privilege on the sn1ff server (and clients) to perform installation.
 
 <br>
 
@@ -129,7 +129,7 @@ You can check out URLs like some of these or similar (**not endorsements**):
 
 On the sn1ff server, you **need** to have SSH server installed, if you are not sure, you can check with the following command:
 
-* **dpkg -l | grep openssh-server**
+* **dpkg -l openssh-server**
 
 You should see output similar to the following:
 
@@ -139,7 +139,7 @@ You should see output similar to the following:
 
 <br>
 
-### 3.4.2 Install SSH server
+#### 3.4.2 Install SSH server
 
 If the SSH server is not installed, you can install it with the following commands:
 
@@ -149,7 +149,7 @@ If the SSH server is not installed, you can install it with the following comman
 
 <br>
 
-### 3.4.3 Check the SSH server is started, and enabled on boot
+#### 3.4.3 Check the SSH server is started, and enabled on boot
 
 You also **need** to check that the SSH server is started, you can check with the following command:
 
@@ -171,7 +171,7 @@ If it's not, you can start it with the following command:
 
 <br>
 
-### 3.4.4 Check SSH server is enabled on boot
+#### 3.4.4 Check SSH server is enabled on boot
 
 To ensure the SSH server starts automatically on boot:
 
@@ -179,9 +179,9 @@ To ensure the SSH server starts automatically on boot:
 
 <br>
 
-### 3.4.5 Check SSH server is listening
+#### 3.4.5 Check SSH server is listening
 
-To check if the SSH server is listening on port 22, you can use the following commands:
+To check if the SSH server is listening, you can use the following commands:
 
 * **sudo ss -tulpn | grep ssh**
 
@@ -194,7 +194,7 @@ You should see output like:
 
 <br>
 
-### 3.4.6 Check firewall access
+#### 3.4.6 Check firewall access
 
 If you are running a firewall, you will need to allow the SSH server access.
 
@@ -210,7 +210,7 @@ If you are running a firewall, you will need to allow the SSH server access.
 
 ### 4.1 sudo privilege
 
-You **need** to have **sudo** privilege on the sn1ff server and client(s) to perform installation
+You **need** to have **sudo** privilege on the sn1ff clients (and server) to perform installation.
 
 <br>
 
@@ -250,13 +250,13 @@ If ssh is not found or not installed, install it with the following commands:
 
 ## 5.0 INSTALL - SN1FF SERVER
 
-**Make sure you have done the PREREQUISITES section above**
+**Make sure you have done the PREREQUISITES sections above.**
 
 <br>
 
 ### 5.1 Package installation
 
-From the your cloned/downloaded sn1ff git repo directory, perform the following in a command terminal (substituting the actual version numbers for 'N', and the architecture for 'ARCH'):
+From the your cloned/downloaded sn1ff git repo directory, perform the following in a command terminal (substituting the actual version numbers for **'N'**, and the computer architecture for **'ARCH'**):
 
 <br>
 
@@ -265,7 +265,7 @@ From the your cloned/downloaded sn1ff git repo directory, perform the following 
 You can optionally, verify the Debian package before you attempt to install it, with the Debian **"lintian"** utility to check for "policy violations and common errors":
 
 * **sudo install lintian**
-*  ** lintian sn1ff-server**_N.N-N_ARCH**.deb**
+* **lintian sn1ff-server_N.N-N_ARCH.deb**
     * Example ... *lintian sn1ff-server_1.0-1_amd64.deb*
 
 <br>
@@ -284,7 +284,7 @@ This is because I have not created a Debian bug report to request sn1ff's inclus
 
 #### 5.1.2 Install package
 
-* **sudo dpkg -i sn1ff-server**_N.N-N_ARCH**.deb**
+* **sudo dpkg -i sn1ff-server_N.N-N_ARCH.deb**
     * Example ... *sudo dpkg -i sn1ff-server_1.0-1_amd64.deb*
 
 <br>
@@ -314,11 +314,11 @@ You should see output similar to the following:
 
 To be able to use the sn1ff_monitor, and run checks locally, a user must be a member of the sn1ff group.
 
-You can add your user, and other users to this group as follows
+You can add your user, and other users to this group as follows:
 
 * **sudo usermod -aG sn1ff "$(whoami)"**
 
-* **sudo usermod -aG sn1ff **other user id****
+* **sudo usermod -aG sn1ff** *OTHER USER ID*
 
 * etc.
 
@@ -345,6 +345,8 @@ The sn1ff monitor should start, and display output similar to the following in t
         1.0-1     [q]quit:
 
                   No FILES to display
+
+                  $ man sn1ff
 ```
 
 **Leave the sn1ff_monitor running**.
@@ -417,9 +419,9 @@ Switch back to the terminal running the sn1ff_monitor, you should see output sim
         CHECK: Final check part for chk_debug_pass
 
 
-        --------------------------------------------------------------------------------
+        ------------------------------------------------------------------------
 
-                                      FAILED: CHECK FINAL PART
+                              FAILED: CHECK FINAL PART
 ```
 
 * Press the **d** key to delete the check results file, you should now see:
@@ -429,6 +431,8 @@ Switch back to the terminal running the sn1ff_monitor, you should see output sim
         1.0-1     [q]quit:
 
                   No FILES to display
+
+                  $ man sn1ff
 ```
 
 * Press the **q** key to quit the sn1ff_monitor and return to the terminal shell prompt
@@ -445,7 +449,7 @@ Switch back to the terminal running the sn1ff_monitor, you should see output sim
 
 ### 6.1 Copy public keys
 
-Deploy the sn1ff client(s) public key(s) to the sn1ff server - into the sn1ff service's user **authorized_keys** file.
+Deploy the sn1ff clients **public keys** to the sn1ff server - into the sn1ff service's user **authorized_keys** file.
 
 This file needs to be located at:
 
@@ -469,13 +473,13 @@ Finally check the authorized_keys file, ownership and permissions:
 
 <br>
 
-### 6.1 Update sshd_config file
+### 7.1 Update sshd_config file
 
-You now need to edit the sshd_config file (**Not the ssh_conf file**). For instance if you use vim to edit:
+You now need to edit the sshd_config file (**Not the ssh_config file**). For instance if you use vim to edit:
 
 * **sudo vim /etc/ssh/sshd_config**
 
-Add the following lines to the end of the file (indentation can be spaces or tabs):
+Add the following lines to the end of the file *(indentation can be spaces or tabs)*:
 
 ```
 Match User sn1ff
@@ -510,9 +514,9 @@ Perform the following steps on **each** sn1ff client.
 
 <br>
 
-### 8,1 Package install
+### 8.1 Package install
 
-From the your cloned/downloaded sn1ff git repo directory, perform the following in a command terminal (substituting the actual version numbers for 'N', and the architecture for 'ARCH'):
+From the your cloned/downloaded sn1ff git repo directory, perform the following in a command terminal (substituting the actual version numbers for **'N'**, and the computer architecture for **'ARCH'**):
 
 <br>
 
@@ -521,7 +525,7 @@ From the your cloned/downloaded sn1ff git repo directory, perform the following 
 You can optionally, verify the Debian package before you attempt to install it, with the Debian **"lintian"** utility to check for "policy violations and common errors":
 
 * **sudo install lintian**
-*  ** lintian sn1ff-client**_N.N-N_ARCH**.deb**
+*  **lintian sn1ff-client_N.N-N_ARCH.deb**
     * Example ... *lintian sn1ff-client_1.0-1_amd64.deb*
 
 <br>
@@ -540,14 +544,14 @@ This is because I have not created a Debian bug report to request sn1ff's inclus
 
 #### 8.1.2 Install package
 
-* **sudo dpkg -i sn1ff-client**_N.N-N_ARCH**.deb**
+* **sudo dpkg -i sn1ff-client_N.N-N_ARCH.deb**
     * Example ... *sudo dpkg -i sn1ff-client_1.0-1_amd64.deb*
 
 <br>
 
 ### 8.2 Configure sn1ff client
 
-Using an editor, edit the sn1ff configuration file at */etc/sn1ff/sn1ff.conf*.
+Using an editor, edit the sn1ff configuration file at **/etc/sn1ff/sn1ff.conf**.
 
 This file has the following default settings:
 
@@ -560,7 +564,7 @@ server_address=192.0.2.0
 You **need** to change the value of *server_address*, from its fake value of *192.0.2.0*, to the IPv4 address, or hostname of your sn1ff server:
 
 ```
-server_Address=192.0.2.0
+server_address=192.0.2.0
 ```
 
 You can optionally also configure the default time-to-live (TTL) values for the check file statuses,
@@ -569,7 +573,7 @@ These values are supplied as a comma-separated list with 4 values, where the val
 
 * ALRT,WARN,OKAY,NONE
 
-SO for example, to set the check file state TTL values as follows:
+So for example, to set the check file state TTL values as follows:
 * ALRT TTL -> 120 minutes,
 * WARN TTL ->  60 minutes,
 * OKAY TTL ->   5 minutes,
@@ -583,7 +587,7 @@ client_ttls=120,60,5,1
 
 <br>
 
-### 8.2 Run check
+### 8.3 Run check
 
 In another terminal, again in your cloned/downloaded sn1ff git repo directory:
 
@@ -646,9 +650,9 @@ Switch back to the **sn1ff server** terminal running the **sn1ff_monitor**, you 
         CHECK: Final check part for chk_debug_pass
 
 
-        --------------------------------------------------------------------------------
+        ------------------------------------------------------------------------
 
-                                      FAILED: CHECK FINAL PART
+                              FAILED: CHECK FINAL PART
 ```
 
 * Press the **d** key to delete the check results file, you should now see:
@@ -658,6 +662,8 @@ Switch back to the **sn1ff server** terminal running the **sn1ff_monitor**, you 
         1.0-1     [q]quit:
 
                   No FILES to display
+
+                  $ man sn1ff
 ```
 
 * Press the **q** key to quit the sn1ff_monitor and return to the terminal shell prompt
@@ -686,14 +692,15 @@ Linux *man* pages are installed for sn1ff server and client components. See the 
 This should display the sn1ff *man (7)* page:
 
 ```
-SN1FF(7)                                   Miscellaneous Information Manual                                  SN1FF(7)
+SN1FF(7)                       Miscellaneous Information Manual                      SN1FF(7)
 
 NAME
        sn1ff - enables users to write and monitor "checks"
 
 DESCRIPTION
-       sn1ff  enables  Linux  system  users, to write cybersecurity and system "checks" - using familiar scripting or
-       program languages, and monitor the results of these checks - from a terminal or SSH login.
+       sn1ff  enables  Linux  system  users, to write cybersecurity and system "checks" - using 
+       familiar scripting or program languages, and monitor the results of these checks - from 
+       a terminal or SSH login.
 
        There are 2 main parts to sn1ff:
        - sn1ff server
@@ -706,13 +713,9 @@ The **SEE ALSO** section at the end identifies additional man pages:
 
 ```
 SEE ALSO
-   Other related pages on the sn1ff server:
+   Other related pages:
        sn1ff_service(8), sn1ff_cleaner(8), sn1ff_monitor(1).
-
-   Other related pages on sn1ff clients:
        sn1ff_client(1), sn1ff_license(1), sn1ff_conf(1).
-
-   Other related pages in general:
        chroot(8), systemd(1).
 ```
 <br>
