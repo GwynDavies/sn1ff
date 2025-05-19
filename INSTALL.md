@@ -1,5 +1,27 @@
 # INSTALL
 
+MIT License
+
+Copyright (c) 2025 Gwyn Davies
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights  
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      
+copies of the Software, and to permit persons to whom the Software is          
+furnished to do so, subject to the following conditions:                        
+
+The above copyright notice and this permission notice shall be included in    
+all copies or substantial portions of the Software.                            
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN      
+THE SOFTWARE.
+
 <br><br>
 
 ## 1.0 AVAILABILITY
@@ -17,7 +39,7 @@ sn1ff is currently only available for:
 ### 1.2 Distributions
 
 * **Debian** based GNU/Linux distributions:
-    * **Intel x86_64**,
+    * **Intel x86_64**.
 
 <br>
 
@@ -264,7 +286,7 @@ From the your cloned/downloaded sn1ff git repo directory, perform the following 
 
 You can optionally, verify the Debian package before you attempt to install it, with the Debian **"lintian"** utility to check for "policy violations and common errors":
 
-* **sudo install lintian**
+* **sudo apt install lintian**
 * **lintian sn1ff-server_N.N-N_ARCH.deb**
     * Example ... *lintian sn1ff-server_1.0-1_amd64.deb*
 
@@ -278,7 +300,7 @@ There should be currently 0 errors and 1 expected warning:
 W: sn1ff-server: initial-upload-closes-no-bugs [usr/share/doc/sn1ff-server/changelog.Debian.gz:1]
 ```
 
-This is because I have not created a Debian bug report to request sn1ff's inclusion into the Debian available packages. If there is enough interest, I will work to achieve it.
+This is because I have not created a Debian bug report to request sn1ff's inclusion into the Debian available packages.
 
 <br>
 
@@ -524,7 +546,7 @@ From the your cloned/downloaded sn1ff git repo directory, perform the following 
 
 You can optionally, verify the Debian package before you attempt to install it, with the Debian **"lintian"** utility to check for "policy violations and common errors":
 
-* **sudo install lintian**
+* **sudo apt install lintian**
 *  **lintian sn1ff-client_N.N-N_ARCH.deb**
     * Example ... *lintian sn1ff-client_1.0-1_amd64.deb*
 
@@ -538,7 +560,7 @@ There should be currently 0 errors and 1 expected warning:
 W: sn1ff-client: initial-upload-closes-no-bugs [usr/share/doc/sn1ff-server/changelog.Debian.gz:1]
 ```
 
-This is because I have not created a Debian bug report to request sn1ff's inclusion into the Debian available packages. If there is enough interest, I will work to achieve it.
+This is because I have not created a Debian bug report to request sn1ff's inclusion into the Debian available packages.
 
 <br>
 
@@ -714,9 +736,8 @@ The **SEE ALSO** section at the end identifies additional man pages:
 ```
 SEE ALSO
    Other related pages:
-       sn1ff_service(8), sn1ff_cleaner(8), sn1ff_monitor(1).
-       sn1ff_client(1), sn1ff_license(1), sn1ff_conf(1).
-       chroot(8), systemd(1).
+       sn1ff_service(8),  sn1ff_cleaner(8),  sn1ff_monitor(1),  sn1ff_client(1), 
+       sn1ff_license(1), sn1ff_conf(1), chroot(8), systemd(1).
 ```
 <br>
 

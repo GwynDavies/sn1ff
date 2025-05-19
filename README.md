@@ -87,14 +87,9 @@ FURTHER INFORMATION
        https://github.com/GwynDavies/sn1ff
 
 SEE ALSO
-   Other related pages on the sn1ff server:
-       sn1ff_service(8), sn1ff_cleaner(8), sn1ff_monitor(1).
-
-   Other related pages on sn1ff clients:
-       sn1ff_client(1), sn1ff_license(1), sn1ff_conf(1).
-
-   Other related pages in general:
-       chroot(8), systemd(1).
+   Other related pages:
+       sn1ff_service(8),  sn1ff_cleaner(8),  sn1ff_monitor(1),  sn1ff_client(1), 
+       sn1ff_license(1), sn1ff_conf(1), chroot(8), systemd(1).
 
 AUTHOR
        Written by Gwyn Davies
