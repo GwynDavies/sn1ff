@@ -19,7 +19,7 @@ See file [LICENSE](./LICENSE)
 
 # Screenshot
 
-[![Static screen view](sn1ff.png)
+[Static screen view](sn1ff.png)
 
 <p align="center">
   ![Dynamic screen view](sn1ff.gif)
