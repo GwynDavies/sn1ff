@@ -21,8 +21,9 @@ See file [LICENSE](./LICENSE)
 
 Click for very brief video:
 
-[![Video clip](sn1ff.png)](sn1ff.mp4)
-i[![Video clip](sn1ff.png)](https://raw.githubusercontent.com/GwynDavies/sn1ff/main/sn1ff.mp4)
+[![Video clip](sn1ff.png)](sn1ff.gif)
+![Demo](sn1ff.gif)
+[![Demo](sn1ff.gif)](https://github.com/GwynDavies/sn1ff/blob/main/sn1ff.gif)
 
 
 # Overview
