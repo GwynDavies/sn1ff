@@ -19,11 +19,11 @@ See file [LICENSE](./LICENSE)
 
 # Screenshot
 
-Click for very brief video:
+[![Static screen view](sn1ff.png)
 
-[![Video clip](sn1ff.png)](sn1ff.gif)
-![Demo](sn1ff.gif)
-[![Demo](sn1ff.gif)](https://github.com/GwynDavies/sn1ff/blob/main/sn1ff.gif)
+<p align="center">
+  ![Dynamic screen view](sn1ff.gif)
+</p>
 
 
 # Overview
