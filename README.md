@@ -17,7 +17,7 @@ See file [INSTALL.md](./INSTALL.md)
 See file [LICENSE](./LICENSE)
 
 
-# Screenshot
+# Screen view
 
 ![Static screen view](sn1ff.png)
 
