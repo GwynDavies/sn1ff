@@ -21,7 +21,7 @@ See file [LICENSE](./LICENSE)
 
 Click for very brief video:
 
-[![Video clip](./sn1ff.png)](./sn1ff.webm)
+[![Video clip](./sn1ff.png)](./blob/main/sn1ff.webm)
 
 
 # Overview
