@@ -2,7 +2,14 @@
 
 *sn1ff* is a utility for running and monitoring system and security checks.
 
- It is a lightweight tool for creating, executing, and monitoring system and cybersecurity checks. Designed for Debian-based systems, it primarily supports Bash scripting to automate and log routine security tasks.
+It is a lightweight tool for: 
+* Creating, 
+* Automating,
+* Monitoring
+
+... system and cybersecurity checks. 
+
+Designed for Debian-based Linux systems, it primarily supports **Bash** scripting - to automate and monitor routine system and security checks.
 
 
 # Installation
