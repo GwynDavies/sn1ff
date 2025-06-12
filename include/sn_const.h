@@ -25,6 +25,6 @@ SOFTWARE.
 #ifndef SN_CONST_H
 #define SN_CONST_H
 
-#define VERSION "1.0-1"
+#define VERSION "1.0-2"
 
 #endif

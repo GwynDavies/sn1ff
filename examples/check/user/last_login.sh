@@ -28,17 +28,29 @@
 # |                                                                |
 # '----------------------------------------------------------------'
 
-source "$(dirname "$0")/lib/sn1ff_lib.sh"
+# Get the directory of the current script
 
-# Override default TTL values if desired
-#
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source the library scripts from the 'lib' directory in the parent
+
+source "$SCRIPT_DIR/../../lib/sn1ff_lib.sh"
+
+# Override default TTL values if desired (minutes)
+
 #sn_set_alrt_ttl 120
 #sn_set_warn_ttl 120
 #sn_set_okay_ttl 120
 #sn_set_none_ttl 120
-sn_show_ttls
+#sn_show_ttls
 
-source "$(dirname "$0")/lib/sn1ff_firewall_ufw_lib.sh"
+# .----------------------------------------------------------------.
+# |                                                                |
+# | LOCAL FUNCTIONS                                                |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+# None
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -53,17 +65,17 @@ if [[ $# -eq 0 || $# -eq 1 ]]; then
   echo "$0 <$SN_ADDR>"
   echo ""
 else
-  echo "EXPECTED 0 OR 1 ARGUMENTS - $0  || $0 <ADDR>"
+  echo "EXPECTED 0 OR 1 ARGUMENTS - $0 || $0 <ADDR>"
   exit 1
 fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | LOCAL FUNCTIONS                                                |
+# | SETTINGS                                                       |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-# None
+CHECKID="LAST LOGINS"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -75,82 +87,66 @@ SN_FILENAME=$(sn1ff_client -b)
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
-  echo "ERROR: FAILED TO BEGIN SN1FF FILES - STATUS -> $exit_code SN_FILENAME -> SN_FILENAME"
+  echo "ERROR: FAILED TO BEGIN SN1FF FILE - STATUS -> $exit_code SN_FILENAME -> SN_FILENAME"
   exit 1
 fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK UFW IS INSTALLED                                         |
+# | DISPLAY BANNER                                                 |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_first_header "FIREWALL UFW: CHECK UFW IS INSTALLED" "$SN_FILENAME"
-
-sn_ufw_installed >>"$SN_FILENAME" 2>&1
-exit_code=$?
-
-if [ $exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK UFW IS INSTALLED" "$SN_FILENAME" "ALRT" "$SN_ADDR"
-fi
+sn_append_titlebox "$CHECKID" "$SN_FILENAME"
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK USER HAS REQUIRED SUDO ABILITY                           |
+# | CHECK FOR UKNOWNS IN 'LAST_LOGIN'                              |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_header "FIREWALL UFW: CHECK USER HAS REQUIRED SUDO ABILITY" "$SN_FILENAME"
+sn_append_first_header "$CHECKID: CHECK FOR UNKNOWNS IN 'LAST LOGIN'" "$SN_FILENAME"
 
-sn_ufw_sudo_ability >>"$SN_FILENAME" 2>&1
-exit_code=$?
+# Define the exclude list with "reboot" initially
 
-if [ $exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK USER HAS REQUIRED SUDO ABILITY" "$SN_FILENAME" "ALRT" "$SN_ADDR"
-fi
+exclude_list=("reboot" "wtmp" "gduser")
 
-# .----------------------------------------------------------------.
-# |                                                                |
-# | GET UFW RULES DEFINED                                          |
-# |                                                                |
-# '----------------------------------------------------------------'
+# Initialize a flag to track if unexpected users are found
 
-# Expected UFW rules
+unexpected_users_found=false
 
-expected_rules="Status: active
-Logging: on (low)
-Default: deny (incoming), allow (outgoing), disabled (routed)
-New profiles: skip
+# Run the last command and get the list of usernames
 
-To                         Action      From
---                         ------      ----
-22/tcp                     ALLOW IN    Anywhere                  
-22/tcp (v6)                ALLOW IN    Anywhere (v6)             "
+last_output=$(last | awk '{print $1}' | sort | uniq)
 
-sn_append_header "FIREWALL UFW: GET UFW RULES DEFINED" "$SN_FILENAME"
+# Check each username in the last command output
 
-actual_rules=$(sn_ufw_rules)
-exit_code=$?
+for username in $last_output; do
+  # Flag to check if username is in exclude list
+  username_found=false
 
-if [ $exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: GET UFW RULES DEFINED" "$SN_FILENAME" "ALRT" "$SN_ADDR"
-fi
+  # Loop through the exclude list to see if username matches
+  for excluded_username in "${exclude_list[@]}"; do
+    if [[ "$username" == "$excluded_username" ]]; then
+      username_found=true
+      break
+    fi
+  done
 
-# .----------------------------------------------------------------.
-# |                                                                |
-# | CHECK UFW RULES MATCH EXPECTED VALUES                          |
-# |                                                                |
-# '----------------------------------------------------------------'
+  # If the username is not in the exclude list, print the username and set the flag to true
+  if ! $username_found; then
+    echo "Error: Found unexpected username '$username'." >>"$SN_FILENAME" 2>&1
+    unexpected_users_found=true
+  fi
+done
 
-sn_append_header "FIREWALL UFW: CHECK RULES MATCH EXPECTED VALUES" "$SN_FILENAME"
+# Report the result based on the flag
 
-diff_result=$(diff <(echo "$expected_rules") <(echo "$actual_rules"))
-exit_code=$?
-
-sn_append_message "$diff_result" "$SN_FILENAME"
-
-if [ $exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK RULES MATCH EXPECTED VALUES" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+if $unexpected_users_found; then
+  echo "Error: Unexpected users found" >>"$SN_FILENAME" 2>&1
+  sn_exit_with_message "FAILED: CHECK UNKNOWN 'LAST LOGIN'" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+else
+  echo "All usernames found were expected." >>"$SN_FILENAME" 2>&1
 fi
 
 # .----------------------------------------------------------------.

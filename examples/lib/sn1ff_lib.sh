@@ -37,8 +37,7 @@ _SN1FF_LIB_LOADED=1
 # |                                                                |
 # '----------------------------------------------------------------'
 
-ttl_values=$(sn1ff_conf -t)
-if [ $? -ne 0 ]; then
+if ! ttl_values=$(sn1ff_conf -t); then
   echo "Error: Failed to retrieve 'client_ttls' value." >&2
   exit 1
 fi
@@ -93,11 +92,70 @@ sn_set_none_ttl() {
 }
 
 sn_show_ttls() {
-  echo "ALRT TTL is currently set to -> $ALRT_TTL <- minutes"
-  echo "WARN TTL is currently set to -> $WARN_TTL <- minutes"
-  echo "OKAY TTL is currently set to -> $OKAY_TTL <- minutes"
-  echo "NONE TTL is currently set to -> $NONE_TTL <- minutes"
-  echo ""
+  printf "Current TTL values (minutes):\n"
+  printf "  ALRT %5s\n" $ALRT_TTL
+  printf "  WARN %5s\n" $WARN_TTL
+  printf "  OKAY %5s\n" $OKAY_TTL
+  printf "  NONE %5s\n" $NONE_TTL
+  printf "\n"
+}
+
+sn_append_titlebox() {
+  local INPUT="$1"
+  local FILE="$2"
+  #local TERM_WIDTH=$(tput cols)
+  local TERM_WIDTH=80
+
+  # Add spaces between characters
+  local SPACED_TEXT
+  SPACED_TEXT=$(echo "$INPUT" | sed 's/./& /g' | sed 's/ $//')
+  local TEXT_LENGTH=${#SPACED_TEXT}
+
+  # Set box width with padding
+  local BOX_WIDTH=$((TEXT_LENGTH + 4))
+  if ((BOX_WIDTH > TERM_WIDTH)); then
+    BOX_WIDTH=$((TERM_WIDTH - 2))
+    SPACED_TEXT=$(echo "$SPACED_TEXT" | cut -c1-$((BOX_WIDTH - 4)))
+    TEXT_LENGTH=${#SPACED_TEXT}
+  fi
+
+  # Centering calculations
+  local H_PADDING=$(((TERM_WIDTH - BOX_WIDTH) / 2))
+  local SPACES
+  SPACES=$(printf '%*s' "$H_PADDING" "")
+
+  local INNER_WIDTH=$((BOX_WIDTH - 2))
+  local PAD_LEFT=$(((INNER_WIDTH - TEXT_LENGTH) / 2))
+  local PAD_RIGHT=$((INNER_WIDTH - TEXT_LENGTH - PAD_LEFT))
+
+  # ASCII-only box characters
+  local CORNER_TL="."
+  local CORNER_TR="."
+  local CORNER_BL="'"
+  local CORNER_BR="'"
+  local HORIZONTAL="-"
+  local VERTICAL="|"
+
+  # Top border
+  printf "%s%s" "$SPACES" "$CORNER_TL" >>"$FILE"
+  printf "%${INNER_WIDTH}s" | tr ' ' "$HORIZONTAL" >>"$FILE"
+  printf "%s\n" "$CORNER_TR" >>"$FILE"
+
+  # Empty line
+  printf "%s%s%${INNER_WIDTH}s%s\n" "$SPACES" "$VERTICAL" "" "$VERTICAL" >>"$FILE"
+
+  # Centered text line
+  printf "%s%s%*s%s%*s%s\n" \
+    "$SPACES" "$VERTICAL" \
+    "$PAD_LEFT" "" "$SPACED_TEXT" "$PAD_RIGHT" "" "$VERTICAL" >>"$FILE"
+
+  # Empty line
+  printf "%s%s%${INNER_WIDTH}s%s\n" "$SPACES" "$VERTICAL" "" "$VERTICAL" >>"$FILE"
+
+  # Bottom border
+  printf "%s%s" "$SPACES" "$CORNER_BL" >>"$FILE"
+  printf "%${INNER_WIDTH}s" | tr ' ' "$HORIZONTAL" >>"$FILE"
+  printf "%s\n\n" "$CORNER_BR" >>"$FILE"
 }
 
 sn_append_first_header() {
@@ -169,15 +227,15 @@ sn_exit_with_message() {
       ;;
   esac
 
-  if [ -z "$sn_user" ] && [ -z "$sn_addr" ]; then
-    # Local client, as there is no user or addr for SCP
+  if [ -z "$sn_addr" ]; then
+    # Local client, as there is no addr for SCP
     sn1ff_client \
       -e \
       -f "$sn_filename" \
       -s "$sn_status" \
       -t "$sn_ttl"
   else
-    # Remote client, as there is a user and addr for SCP
+    # Remote client, as there is an addr for SCP
     sn1ff_client \
       -e \
       -f "$sn_filename" \

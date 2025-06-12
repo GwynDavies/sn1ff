@@ -22,7 +22,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-./run_chk.sh -n chk_debug_pass.sh
-./run_chk.sh -n chk_debug_fail.sh
-./run_chk.sh -n chk_firewall_ufw.sh
-./run_chk.sh -n chk_listening_ports.sh
+# Check file
+
+./run_chk.sh -n ./check/file/suid_sgid.sh
+./run_chk.sh -n ./check/file/world_writeable.sh
+
+# log/journald
+
+./run_chk.sh -n ./check/log/journald/disk_usage.sh
+./run_chk.sh -n ./check/log/journald/ssh_fail.sh
+./run_chk.sh -n ./check/log/journald/sudo_fail.sh
+
+# Check network
+
+./run_chk.sh -n ./check/net/port/listening.sh
+./run_chk.sh -n ./check/net/sshd/settings.sh
+
+# Check package
+
+./run_chk.sh -n ./check/package/apt/upgrades_waiting.sh
+
+# Check user
+
+./run_chk.sh -n ./check/user/last_login.sh
+./run_chk.sh -n ./check/user/failed_login.sh
+./run_chk.sh -n ./check/user/unknown_users.sh

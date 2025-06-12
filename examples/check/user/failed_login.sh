@@ -28,15 +28,22 @@
 # |                                                                |
 # '----------------------------------------------------------------'
 
-source "$(dirname "$0")/lib/sn1ff_lib.sh"
+# Get the directory of the current script
 
-# Override default TTL values
-#
-sn_set_alrt_ttl 1
-sn_set_warn_ttl 1
-sn_set_okay_ttl 1
-sn_set_none_ttl 1
-sn_show_ttls
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source the library scripts from the 'lib' directory in the parent
+
+source "$SCRIPT_DIR/../../lib/sn1ff_lib.sh"
+source "$SCRIPT_DIR/../../lib/sn1ff_linux_lib.sh"
+
+# Override default TTL values if desired (minutes)
+
+#sn_set_alrt_ttl 120
+#sn_set_warn_ttl 120
+#sn_set_okay_ttl 120
+#sn_set_none_ttl 120
+#sn_show_ttls
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -65,6 +72,14 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
+# | SETTINGS                                                       |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+CHECKID="FAILED LOGIN"
+
+# .----------------------------------------------------------------.
+# |                                                                |
 # | BEGIN SN1FF FILE                                               |
 # |                                                                |
 # '----------------------------------------------------------------'
@@ -79,34 +94,79 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK INITIAL PART                                             |
+# | DISPLAY BANNER                                                 |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_first_header "DEBUG PASS: CHECK INITIAL PART" "$SN_FILENAME"
+sn_append_titlebox "$CHECKID" "$SN_FILENAME"
 
-# <Some checking code here>
-echo "Check who the checker is -> $(whoami)" >>"$SN_FILENAME"
-fake_exit_code=0
+# .----------------------------------------------------------------.
+# |                                                                |
+# | CHECK HAS REQUIRED SUDO ABILITY                                |
+# |                                                                |
+# '----------------------------------------------------------------'
 
-if [ $fake_exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: INITIAL CHECK PART" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+sn_append_first_header "$CHECKID: CHECK HAS REQUIRED SUDO ABILITY" "$SN_FILENAME"
+
+# Do I have sudo access to the lastb command
+#/usr/bin/sudo -l | /usr/bin/grep "/usr/bin/lastb" >/dev/null
+sn_linux_can_sudo_cmd "/usr/bin/lastb"
+
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  sn_append_message "Cannot perform -> sudo /usr/bin/lastb" "$SN_FILENAME"
+  sn_exit_with_message "FAILED: CHECK HAS REQUIRED SUDO ABILITY" "$SN_FILENAME" "ALRT" "$SN_ADDR"
 fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK FINAL PART                                               |
+# | CHECK UKNOWN 'FAILED LOGIN'                                    |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_header "DEBUG PASS: CHECK FINAL PART" "$SN_FILENAME"
+sn_append_first_header "$CHECKID: CHECK UNKNOWN 'FAILED LOGIN'" "$SN_FILENAME"
 
-# <Some more checking code here>
-echo -e "Check what the Linux release is ->\n$(cat /etc/os-release)\n" >>"$SN_FILENAME"
-fake_exit_code=0
+# Define the exclude list with "reboot" initially
 
-if [ $fake_exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK FINAL PART" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+exclude_list=("btmp" "gduser")
+
+# Initialize a flag to track if unexpected users are found
+
+unexpected_users_found=false
+
+# Run the last command and get the list of usernames
+
+failed_output=$(sudo /usr/bin/lastb | awk '{print $1}' | sort | uniq)
+
+# Check each username in the lastb command output
+
+for username in $failed_output; do
+  # Flag to check if username is in exclude list
+  username_found=false
+
+  # Loop through the exclude list to see if username matches
+  for excluded_username in "${exclude_list[@]}"; do
+    if [[ "$username" == "$excluded_username" ]]; then
+      username_found=true
+      break
+    fi
+  done
+
+  # If the username is not in the exclude list, print the username and set the flag to true
+  if ! $username_found; then
+    echo "Error: Found unexpected username '$username'." >>"$SN_FILENAME" 2>&1
+    unexpected_users_found=true
+  fi
+done
+
+# Report the result based on the flag
+
+if $unexpected_users_found; then
+  echo "Error: Unexpected users found" >>"$SN_FILENAME" 2>&1
+  sn_exit_with_message "FAILED: CHECK UNKNOWN 'FAILED LOGIN'" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+else
+  echo "All usernames found were expected." >>"$SN_FILENAME" 2>&1
 fi
 
 # .----------------------------------------------------------------.

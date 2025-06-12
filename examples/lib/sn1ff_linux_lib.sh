@@ -56,7 +56,7 @@ sn_linux_group_exists() {
   fi
 }
 
-## Check user is a member of a group
+## Check current user is a member of a group
 #
 # @param $1  the group to check user is a member of
 #
@@ -66,10 +66,10 @@ sn_linux_group_member() {
   local the_group="$1"
 
   if groups | grep "$REQUIRED_GROUP" >/dev/null 2>&1; then
-    # User is a member of group
+    # Current user is a member of group
     return 0
   else
-    # User is not a member of group
+    # Current user is not a member of group
     return 1
   fi
 }
@@ -115,14 +115,14 @@ sn_linux_cmd_path() {
 sn_linux_host_eq() {
   local to_hostname=$1
   echo "-> Test host_eq ${to_hostname}"
-  [ "$(hostname)" = "${to_hostname}" ] && exit 0 || exit 1
+  [ "$(hostname)" = "${to_hostname}" ] && return 0 || return 1
 }
 
 # host_not_eq <to hostname>
 sn_linux_host_neq() {
   local to_hostname=$1
   echo "-> Test host_not_eq ${to_hostname}"
-  [ "$(hostname)" != "${to_hostname}" ] && exit 0 || exit 1
+  [ "$(hostname)" != "${to_hostname}" ] && return 0 || return 1
 }
 
 # host_in <to hostnames>
@@ -134,7 +134,7 @@ sn_linux_host_neq() {
 sn_linux_host_in() {
   local to_hostnames=$1
   echo "-> Test host_in $to_hostnames"
-  hostname | /usr/bin/grep -q -w -F -f <(echo -e "${to_hostnames}") && exit 0 || exit 1
+  hostname | /usr/bin/grep -q -w -F -f <(echo -e "${to_hostnames}") && return 0 || return 1
 }
 
 # sn_host_nin <to hostnames>
@@ -146,7 +146,7 @@ sn_linux_host_in() {
 sn_linux_host_nin() {
   local to_hostnames=$1
   echo "-> Test host_not_in $to_hostnames"
-  hostname | /usr/bin/grep -q -w -F -f <(echo -e "${to_hostnames}") && exit 1 || exit 0
+  hostname | /usr/bin/grep -q -w -F -f <(echo -e "${to_hostnames}") && return 1 || return 0
 }
 
 # .----------------------------------------------------------------.
@@ -168,14 +168,14 @@ sn_linux_distro_eq() {
   current_distro=$(sn_linux_distro_detect)
   local to_distro=$1
   echo "-> Test distro_eq ${to_distro} = $current_distro"
-  [ "${current_distro}" = "${to_distro}" ] && exit 0 || exit 1
+  [ "${current_distro}" = "${to_distro}" ] && return 0 || return 1
 }
 
 sn_linux_distro_neq() {
   current_distro=$(sn_linux_distro_detect)
   local to_distro=$1
   echo "-> Test distro_not_eq ${to_distro} = $current_distro"
-  [ "${current_distro}" != "${to_distro}" ] && exit 0 || exit 1
+  [ "${current_distro}" != "${to_distro}" ] && return 0 || return 1
 }
 
 # distro_in <to distros>
@@ -187,7 +187,7 @@ sn_linux_distro_neq() {
 sn_linux_distro_in() {
   local to_distros=$1
   echo "-> Test distro_in $to_distros"
-  sn_linux_distro_detect | /usr/bin/grep -q -w -F -f <(echo -e "${to_distros}") && exit 0 || exit 1
+  sn_linux_distro_detect | /usr/bin/grep -q -w -F -f <(echo -e "${to_distros}") && return 0 || return 1
 }
 
 # distro_not_in <to distros>
@@ -199,7 +199,7 @@ sn_linux_distro_in() {
 sn_linux_distro_nin() {
   local to_distros=$1
   echo "-> Test distro_not_in $to_distros"
-  sn_linux_distro_detect | /usr/bin/grep -q -w -F -f <(echo -e "${to_distros}") && exit 1 || exit 0
+  sn_linux_distro_detect | /usr/bin/grep -q -w -F -f <(echo -e "${to_distros}") && return 1 || return 0
 }
 
 # .----------------------------------------------------------------.
@@ -208,13 +208,14 @@ sn_linux_distro_nin() {
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_linux_srvc_installed() {
+# Checks the service exists, and is running
+sn_linux_srvc_exists_and_running() {
   local service_name=$1
   if ! systemctl status "$service_name" &>/dev/null; then
-    echo "Service $service_name is NOT installed"
+    echo "Service $service_name does NOT exist or is NOT running"
     return 1
   else
-    echo "Service $service_name IS installed"
+    echo "Service $service_name EXISTS and IS running"
     return 0
   fi
 }
@@ -238,5 +239,55 @@ sn_linux_srvc_active() {
   else
     echo "Service $service_name IS active"
     return 0
+  fi
+}
+
+sn_linux_srvc_not_failed() {
+  local service_name=$1
+  if systemctl is-failed "$service_name" &>/dev/null; then
+    echo "Service $service_name IS failed"
+    return 1
+  else
+    echo "Service $service_name is NOT failed"
+    return 0
+  fi
+}
+
+# .----------------------------------------------------------------.
+# |                                                                |
+# | sudo                                                           |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+# Check if the user has "no password" access to sudo
+#
+# @return 0 if user has passwordless access to sudo
+#         1 if not
+sn_linux_has_sudo_nopasswd() {
+  if sudo -n true >/dev/null; then
+    #echo "User has passwordless sudo access."
+    return 0
+  else
+    #echo "User does NOT have passwordless sudo access."
+    return 1
+  fi
+}
+
+# Check if the user can "sudo" a command, without having to
+# give a password
+#
+# @param  'cmd' is the (full path) command
+# @return 0 if user can run the command with having to give a password
+#         1 if not
+sn_linux_can_sudo_cmd() {
+  local cmd=$1
+  echo "cmd->${cmd}<-"
+  #if (sudo -n -l $cmd > /dev/null); then
+  if (sudo -l | grep "$cmd" >/dev/null); then
+    echo "You can run sudo cmd without a password."
+    return 0
+  else
+    echo "You cannot run cmd without a password."
+    return 1
   fi
 }

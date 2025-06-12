@@ -22,13 +22,12 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cd ..
+# --------------------------------------------------#
+#                                                   #
+# Format the bash script files                      #
+#                                                   #
+# --------------------------------------------------#
 
-find ./examples -name '*.sh' -exec shellcheck -x {} +
+# sudo apt install shfmt
 
-find ./utils -name '*.sh' -exec shellcheck -x {} +
-
-shellcheck -x ./debian/prerm-server
-shellcheck -x ./debian/postinst-server
-shellcheck -x ./debian/postrm-server
-
+find . -type f -name "*.sh" -exec shfmt -i 2 -ci -w -bn {} +

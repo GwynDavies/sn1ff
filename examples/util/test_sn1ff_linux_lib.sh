@@ -289,16 +289,16 @@ test_sn_linux_distro_in_8() {
 # |                                                                |
 # '----------------------------------------------------------------'
 
-test_sn_linux_srvc_installed_1() {
+test_sn_linux_srvc_exists_and_running_1() {
   # T??: systemd service exists
-  output=$(sn_linux_srvc_installed systemd-journald)
+  output=$(sn_linux_srvc_exists_and_running systemd-journald)
   exit_code=$?
   assertEquals "exit_code == 0" 0 $exit_code
 }
 
-test_sn_linux_srvc_installed_2() {
+test_sn_linux_srvc_installed_and_running_2() {
   # T??: systemd service not exist
-  output=$(sn_linux_srvc_installed bad-systemd-journald)
+  output=$(sn_linux_srvc_exists_and_running bad-systemd-journald)
   exit_code=$?
   assertEquals "exit_code == 1" 1 $exit_code
 }
