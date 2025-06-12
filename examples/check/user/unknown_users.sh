@@ -115,7 +115,7 @@ users=$(grep -Ev '(/usr/sbin/nologin|/bin/false|/bin/sync)$' /etc/passwd)
 # Names to exclude
 
 if sn_linux_host_eq penguin; then
-  exclude=("root" "gwyn")
+  exclude=("root" "tux")
 else
   exclude=("root" "gduser")
 fi
