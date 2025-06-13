@@ -22,13 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Define colors
-
-RED='\033[0;31m'
-CYAN='\033[0;36m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
 # .----------------------------------------------------------------.
 # |                                                                |
 # | Source required sn1ff bash libraries                           |
@@ -44,16 +37,11 @@ source "$(dirname "$0")/lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 display_help() {
-  echo "Usage: $0 [OPTIONS]"
+  echo "Usage: $0 <OPTION>"
   echo
   echo "Options:"
   echo "  -n, --name SCRIPT_NAME    Run the specified script."
-  echo "  -h, --help               Show this help message."
-}
-
-wait_for_user() {
-  echo "Press enter to continue ..."
-  read -r
+  echo "  -h, --help                Show this help message."
 }
 
 # Function to check if /usr/bin/sn1ff_monitor exists
@@ -166,62 +154,6 @@ run_script() {
   fi
 }
 
-do_menu() {
-  # Get all script files starting with "chk" in the current directory
-  scripts=(chk*.sh)
-
-  # Check if there are any matching scripts
-  if [ ${#scripts[@]} -eq 0 ]; then
-    echo "No scripts found matching chk*.sh in the current directory."
-    exit 1
-  fi
-
-  # Display title with the execution type (Local or Remote)
-  clear
-  echo -e "\n  ${CYAN}┌──────────────────────────────────────┐"
-  echo -e "  │     ${YELLOW}Available sn1ff checks to run${CYAN}    │"
-  echo -e "  └──────────────────────────────────────┘${NC}\n"
-
-  # Display the list of available scripts
-  for i in "${!scripts[@]}"; do
-    echo -e "${CYAN}     $((i + 1)).${NC}  ${scripts[i]}"
-  done
-
-  # Ask the user to choose a script to run
-  while true; do
-    echo ""
-    #read -r -p "    Enter the number of check to run (or e to exit): " script_choice
-    echo -ne "${CYAN}    Enter number of check to run (or e to exit): ${NC}"
-    read -r script_choice
-
-    # Lowercase selection
-    script_choice=${script_choice,,}
-
-    # Remove white space from selection
-    script_choice="${script_choice#"${script_choice%%[![:space:]]*}"}" # Remove leading space
-    script_choice="${script_choice%"${script_choice##*[![:space:]]}"}" # Remove trailing space
-
-    # Check if the user wants to exit
-
-    #if [ "$script_choice" -eq 0 ]; then
-    if [ "$script_choice" = 'e' ]; then
-      echo -e "\nExiting...\n"
-      break
-    fi
-
-    # Validate the script choice
-
-    #if [[ "$script_choice" -gt 0 && "$script_choice" -le "${#scripts[@]}" ]]; then
-    if [[ "$script_choice" -gt 0 && "$script_choice" -le "${#scripts[@]}" ]]; then
-      selected_script="${scripts[$((script_choice - 1))]}"
-      echo -e "\nYou selected: $selected_script"
-      run_script "$selected_script"
-    else
-      echo -e "\n    ${RED}Invalid selection. Please choose a check script number ...${NC}"
-    fi
-  done
-}
-
 # .----------------------------------------------------------------.
 # |                                                                |
 # | Main                                                           |
@@ -230,8 +162,9 @@ do_menu() {
 
 # Check if arguments are passed
 if [ $# -eq 0 ]; then
-  # No arguments given, call the do_menu function
-  do_menu
+  echo "Error: No aruments supplied"
+  display_help
+  exit 1
 else
   # Check for help flag
   case "$1" in

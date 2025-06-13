@@ -42,16 +42,6 @@ find . -name '*.[ch]' -exec clang-format -i {} +
 
 # sudo apt install shfmt
 
-# Indent all .sh files in the "examples" directory
-for file in examples/*.sh; do
-  shfmt -i 2 -ci -w -bn "$file"
-done
-
-# Indent all .sh files in the "examples/lib" directory
-for file in examples/lib/*.sh; do
-  shfmt -i 2 -ci -w -bn "$file"
-done
-
 # Indent all sh files in the "debian" directory
 shfmt -i 2 -ci -w -bn debian/prerm-server
 shfmt -i 2 -ci -w -bn debian/postinst-server  

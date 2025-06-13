@@ -22,13 +22,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cd ..
+# Check firewall
 
-find ./examples -name '*.sh' -exec shellcheck -x {} +
+./run_chk.sh -n ./check/firewall/ufw.sh
 
-find ./utils -name '*.sh' -exec shellcheck -x {} +
+# Check mandatory access control
 
-shellcheck -x ./debian/prerm-server
-shellcheck -x ./debian/postinst-server
-shellcheck -x ./debian/postrm-server
+./run_chk.sh -n ./check/mandatory_access_control/apparmor/installed_running.sh
 
+# Check tool
+
+./run_chk.sh -n ./check/tool/lynis/run_report.sh

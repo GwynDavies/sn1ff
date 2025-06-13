@@ -24,11 +24,4 @@
 
 cd ..
 
-find ./examples -name '*.sh' -exec shellcheck -x {} +
-
-find ./utils -name '*.sh' -exec shellcheck -x {} +
-
-shellcheck -x ./debian/prerm-server
-shellcheck -x ./debian/postinst-server
-shellcheck -x ./debian/postrm-server
-
+find ./ -name '*.sh' -exec shellcheck -x {} +

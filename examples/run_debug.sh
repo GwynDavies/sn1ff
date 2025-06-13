@@ -22,13 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-cd ..
+# Debug
 
-find ./examples -name '*.sh' -exec shellcheck -x {} +
-
-find ./utils -name '*.sh' -exec shellcheck -x {} +
-
-shellcheck -x ./debian/prerm-server
-shellcheck -x ./debian/postinst-server
-shellcheck -x ./debian/postrm-server
-
+./run_chk.sh -n ./check/debug/none.sh
+./run_chk.sh -n ./check/debug/okay.sh
+./run_chk.sh -n ./check/debug/warn.sh
+./run_chk.sh -n ./check/debug/alrt.sh

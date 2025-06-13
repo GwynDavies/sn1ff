@@ -30,17 +30,22 @@
 # |                                                                |
 # '----------------------------------------------------------------'
 
-source "$(dirname "$0")/lib/sn1ff_lib.sh"
+# Get the directory of the current script
 
-# Override default TTL values if desired
-#
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source the library scripts from the 'lib' directory in the parent
+
+source "$SCRIPT_DIR/../../../lib/sn1ff_lib.sh"
+source "$SCRIPT_DIR/../../../lib/sn1ff_net_ss_lib.sh"
+
+# Override default TTL values if desired (minutes)
+
 #sn_set_alrt_ttl 120
 #sn_set_warn_ttl 120
 #sn_set_okay_ttl 120
 #sn_set_none_ttl 120
-sn_show_ttls
-
-source "$(dirname "$0")/lib/sn1ff_net_ss_lib.sh"
+#sn_show_ttls
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -69,6 +74,14 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
+# | SETTINGS                                                       |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+CHECKID="LISTENING PORTS"
+
+# .----------------------------------------------------------------.
+# |                                                                |
 # | BEGIN SN1FF FILE                                               |
 # |                                                                |
 # '----------------------------------------------------------------'
@@ -83,11 +96,21 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
+# | DISPLAY BANNER                                                 |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+sn_append_titlebox "$CHECKID" "$SN_FILENAME"
+
+# .----------------------------------------------------------------.
+# |                                                                |
 # | CHECK LISTENING PORTS ARE EXPECTED                             |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_first_header "LISTENING PORTS: CHECK LISTENING PORTS ARE EXPECTED" "$SN_FILENAME"
+sn_append_first_header "$CHECKID: CHECK LISTENING PORTS ARE EXPECTED" "$SN_FILENAME"
+
+# Check for listening ports, expect "ssh"
 
 result=$(sn_net_tcp_listeners ssh)
 exit_code=$?

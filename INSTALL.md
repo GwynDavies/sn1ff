@@ -1,3 +1,28 @@
+# LICENSE
+
+MIT License
+
+Copyright (c) 2025 Gwyn Davies
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights  
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell      
+copies of the Software, and to permit persons to whom the Software is          
+furnished to do so, subject to the following conditions:                        
+
+The above copyright notice and this permission notice shall be included in    
+all copies or substantial portions of the Software.                            
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR     
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,       
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE    
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,  
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN      
+THE SOFTWARE.
+
+
 # INSTALL
 
 <br><br>
@@ -361,78 +386,76 @@ Start another terminal, again in your cloned/downloaded sn1ff git repo directory
 
 * **cd examples**
 
-* **./run_chk.sh**
+* **./run_debug.sh**
 
 <br>
 
 You should see output similar to the following:
 
 ```
-  ┌──────────────────────────────────────┐
-  │     Available sn1ff checks to run    │
-  └──────────────────────────────────────┘
-
-     1.  chk_debug_fail.sh
-     2.  chk_debug_pass.sh
-     3.  chk_firewall_ufw.sh
-     4.  chk_listening_ports.sh
-
-    Enter number of check to run (or e to exit): 
-```
-
-* Press the **1** key:
-
-```
-    Enter number of check to run (or e to exit): 1
-
-You selected: chk_debug_fail.sh
+$ ./run_debug.sh 
 IS SN1FF SERVER ...
-IS NOT SN1FF CLIENT ...
-Running 'chk_debug_fail.sh' locally.
-ALRT TTL is currently set to -> 5 <- minutes
-WARN TTL is currently set to -> 4 <- minutes
-OKAY TTL is currently set to -> 3 <- minutes
-NONE TTL is currently set to -> 2 <- minutes
+Running './check/debug/none.sh' locally.
 
+././check/debug/none.sh
+././check/debug/none.sh <>
 
-./chk_debug_fail.sh
-./chk_debug_fail.sh <>
+IS SN1FF SERVER ...
+Running './check/debug/okay.sh' locally.
 
-123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff               100%  291     1.2KB/s   00:00    
+././check/debug/okay.sh
+././check/debug/okay.sh <>
 
-    Enter number of check to run (or e to exit): 
+IS SN1FF SERVER ...
+Running './check/debug/warn.sh' locally.
+
+././check/debug/warn.sh
+././check/debug/warn.sh <>
+
+IS SN1FF SERVER ...
+Running './check/debug/alrt.sh' locally.
+
+././check/debug/alrt.sh
+././check/debug/alrt.sh <>
 ```
 
-* Press the **e** key to exit the menu
 
-Switch back to the terminal running the sn1ff_monitor, you should see output similar to the following:
+Switch back to the terminal running the sn1ff_monitor, you should see output similar to the following for ALRT, WARN, OKAY and NONE statuses:
 
 ```
         sn1ff     ALRT  somehost  192.0.2.0      Wed January 1, 2025 00:00:00 UTC
         1.0-1     [q]quit [f]faster [s]slower [^s]pause [^q]resume [d]delete
                   123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff
 
-        CHECK: Initial check part for chk_debug_pass
-
-
-
-        CHECK: Final check part for chk_debug_pass
-
-
-        ------------------------------------------------------------------------
-
-                              FAILED: CHECK FINAL PART
+                                                                                     
+                            .---------------------.
+                            |                     |
+                            | D E B U G   A L R T |
+                            |                     |
+                            '---------------------'
+                                                                                     
+DEBUG ALRT: CHECK SOMETHING
+                                                                                     
+Current TTL values (minutes):
+  ALRT     1
+  WARN   720
+  OKAY    10
+  NONE    10
+                                                                                     
+--------------------------------------------------------------------------------     
+                                                                                     
+                            RESULT: CHECK SOMETHING
 ```
 
-* Press the **d** key to delete the check results file, you should now see:
+* Press the **d** key to delete each of the check results file, you should then see when they are all deleted:
 
 ```
         sn1ff
-        1.0-1     [q]quit:
+        1.0-2     [q]quit:
 
                   No FILES to display
 
-                  $ man sn1ff
+                  ...
 ```
 
 * Press the **q** key to quit the sn1ff_monitor and return to the terminal shell prompt
@@ -557,8 +580,9 @@ This file has the following default settings:
 
 ```
 min_log_level=info
-client_ttls=5,4,3,2
+client_ttls=1440,720,10,10
 server_address=192.0.2.0
+
 ```
 
 You **need** to change the value of *server_address*, from its fake value of *192.0.2.0*, to the IPv4 address, or hostname of your sn1ff server:
@@ -593,82 +617,15 @@ In another terminal, again in your cloned/downloaded sn1ff git repo directory:
 
 * **cd examples**
 
-* **./run_chk.sh**
+* **./run_debug.sh**
 
-You should see output similar to the following:
-
-```
-
-  ┌──────────────────────────────────────┐
-  │     Available sn1ff checks to run    │
-  └──────────────────────────────────────┘
-
-     1.  chk_debug_fail.sh
-     2.  chk_debug_pass.sh
-     3.  chk_firewall_ufw.sh
-     4.  chk_listening_ports.sh
-
-    Enter number of check to run (or e to exit): 
-```
-
-* **Press the 1 key**
+You should see output similar to that as described above in:
 
 ```
-    Enter number of check to run (or e to exit): 1
-
-You selected: chk_debug_fail.sh
-IS NOT SN1FF SERVER ...
-IS SN1FF CLIENT ...
-Running 'chk_debug_fail.sh' remotely.
-ALRT TTL is currently set to -> 5 <- minutes
-WARN TTL is currently set to -> 4 <- minutes
-OKAY TTL is currently set to -> 3 <- minutes
-NONE TTL is currently set to -> 2 <- minutes
-
-
-./chk_debug_fail.sh
-./chk_debug_fail.sh <192.0.2.0>
-
-123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff               100%  291    77.7KB/s   00:00    
-
-    Enter number of check to run (or e to exit): 
+    ### 5.5 Run a local check
 ```
 
-* Press the **e** key to exit the menu
-
-Switch back to the **sn1ff server** terminal running the **sn1ff_monitor**, you should see output similar to the following:
-
-```
-        sn1ff     ALRT   somehost  192.0.2.0      Wed January 1, 2025 00:00:00 UTC
-        1.0-1     [q]quit [f]faster [s]slower [^s]pause [^q]resume [d]delete
-                  123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff
-
-        CHECK: Initial check part for chk_debug_pass
-
-
-
-        CHECK: Final check part for chk_debug_pass
-
-
-        ------------------------------------------------------------------------
-
-                              FAILED: CHECK FINAL PART
-```
-
-* Press the **d** key to delete the check results file, you should now see:
-
-```
-        sn1ff
-        1.0-1     [q]quit:
-
-                  No FILES to display
-
-                  $ man sn1ff
-```
-
-* Press the **q** key to quit the sn1ff_monitor and return to the terminal shell prompt
-
-<br><br>
+The check results should again appear in the **sn1ff_monitor** on the sn1ff server.
 
 
 <br><br>
@@ -679,7 +636,7 @@ Switch back to the **sn1ff server** terminal running the **sn1ff_monitor**, you 
 
 ## 9.0 OTHER INSTALLED ITEMS
 
-After installing wither the sn1ff server or client, additional items are automatically installed.
+After installing either the sn1ff server or client, additional items are automatically installed.
 
 <br>
 

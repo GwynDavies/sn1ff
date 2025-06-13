@@ -28,15 +28,21 @@
 # |                                                                |
 # '----------------------------------------------------------------'
 
-source "$(dirname "$0")/lib/sn1ff_lib.sh"
+# Get the directory of the current script
 
-# Override default TTL values if desired
-#
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source the library scripts from the 'lib' directory in the parent
+
+source "$SCRIPT_DIR/../../lib/sn1ff_lib.sh"
+
+# Override default TTL values if desired (minutes)
+
 #sn_set_alrt_ttl 120
 #sn_set_warn_ttl 120
 #sn_set_okay_ttl 120
 #sn_set_none_ttl 120
-sn_show_ttls
+#sn_show_ttls
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -65,6 +71,14 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
+# | SETTINGS                                                       |
+# |                                                                |
+# '----------------------------------------------------------------'
+
+CHECKID="WORLD WRITEABLE"
+
+# .----------------------------------------------------------------.
+# |                                                                |
 # | BEGIN SN1FF FILE                                               |
 # |                                                                |
 # '----------------------------------------------------------------'
@@ -79,34 +93,35 @@ fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK INITIAL PART                                             |
+# | DISPLAY BANNER                                                 |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_first_header "DEBUG FAIL: CHECK INITIAL PART" "$SN_FILENAME"
-
-# <Some checking code here>
-echo "Check who the checker is -> $(whoami)" >>"$SN_FILENAME"
-fake_exit_code=0
-
-if [ $fake_exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK INITIAL PART" "$SN_FILENAME" "ALRT" "$SN_ADDR"
-fi
+sn_append_titlebox "$CHECKID" "$SN_FILENAME"
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK FINAL PART                                               |
+# | CHECK FOR WORLD WRITEABLE FILES                                |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_header "DEBUG FAIL: CHECK FINAL PART" "$SN_FILENAME"
+sn_append_first_header "$CHECKID: CHECK FOR 'WORLD WRITEABLE FILES'" "$SN_FILENAME"
 
-# <Some more checking code here>
-echo -e "Check what the Linux release is ->\n$(cat /etc/os-release)\n" >>"$SN_FILENAME"
-fake_exit_code=1
+# Description: Check for world-writable files on the system (excluding mounted filesystems)
 
-if [ $fake_exit_code -ne 0 ]; then
-  sn_exit_with_message "FAILED: CHECK FINAL PART" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+echo "Checking for world-writable files..." >>"$SN_FILENAME" 2>&1
+
+# Run the find command and store the results
+
+world_writable_files=$(find / -xdev -type f -perm -0002 -exec ls -l {} \; 2>/dev/null)
+
+# Check if the result is non-empty
+
+if [[ -n "$world_writable_files" ]]; then
+  echo "ERROR: World-writable files found!" >>"$SN_FILENAME" 2>&1
+  sn_exit_with_message "FAILED: CHECK FOR FOR 'WORLD WRITEABLE FILES'" "$SN_FILENAME" "ALRT" "$SN_ADDR"
+else
+  echo "No world-writable files found." >>"$SN_FILENAME" 2>&1
 fi
 
 # .----------------------------------------------------------------.
