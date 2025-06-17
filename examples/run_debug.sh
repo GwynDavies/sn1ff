@@ -28,3 +28,4 @@
 ./run_chk.sh -n ./check/debug/okay.sh
 ./run_chk.sh -n ./check/debug/warn.sh
 ./run_chk.sh -n ./check/debug/alrt.sh
+./run_chk.sh -n ./check/debug/sn1ff_monitor.sh

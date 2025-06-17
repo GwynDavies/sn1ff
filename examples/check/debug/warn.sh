@@ -22,12 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Set script safety - enables strict error handling:
-#   -e (exit on error),
-#   -u (unset variables),
+# Set script safety - enables strict error handling: 
+#   -e (exit on error), 
+#   -u (unset variables), 
 #   -o pipefail (pipe errors)
 
 set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
 
 # .----------------------------------------------------------------.
 # |                                                                |

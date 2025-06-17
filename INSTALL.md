@@ -291,7 +291,7 @@ You can optionally, verify the Debian package before you attempt to install it, 
 
 * **sudo apt install lintian**
 * **lintian sn1ff-server_N.N-N_ARCH.deb**
-    * Example ... *lintian sn1ff-server_1.0-1_amd64.deb*
+    * Example ... *lintian sn1ff-server_1.0-3_amd64.deb*
 
 <br>
 
@@ -310,7 +310,7 @@ This is because I have not created a Debian bug report to request sn1ff's inclus
 #### 5.1.2 Install package
 
 * **sudo dpkg -i sn1ff-server_N.N-N_ARCH.deb**
-    * Example ... *sudo dpkg -i sn1ff-server_1.0-1_amd64.deb*
+    * Example ... *sudo dpkg -i sn1ff-server_1.0-3_amd64.deb*
 
 <br>
 
@@ -367,7 +367,7 @@ The sn1ff monitor should start, and display output similar to the following in t
 
 ```
         sn1ff
-        1.0-1     [q]quit:
+        1.0-3     [q]quit:
 
                   No FILES to display
 
@@ -424,7 +424,7 @@ Switch back to the terminal running the sn1ff_monitor, you should see output sim
 
 ```
         sn1ff     ALRT  somehost  192.0.2.0      Wed January 1, 2025 00:00:00 UTC
-        1.0-1     [q]quit [f]faster [s]slower [^s]pause [^q]resume [d]delete
+        1.0-3     [q]quit [f]faster [s]slower [^s]pause [^q]resume [d]delete
                   123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff
 
                                                                                      
@@ -451,7 +451,7 @@ Current TTL values (minutes):
 
 ```
         sn1ff
-        1.0-2     [q]quit:
+        1.0-3     [q]quit:
 
                   No FILES to display
 
@@ -549,7 +549,7 @@ You can optionally, verify the Debian package before you attempt to install it, 
 
 * **sudo apt install lintian**
 *  **lintian sn1ff-client_N.N-N_ARCH.deb**
-    * Example ... *lintian sn1ff-client_1.0-1_amd64.deb*
+    * Example ... *lintian sn1ff-client_1.0-3_amd64.deb*
 
 <br>
 
@@ -568,7 +568,7 @@ This is because I have not created a Debian bug report to request sn1ff's inclus
 #### 8.1.2 Install package
 
 * **sudo dpkg -i sn1ff-client_N.N-N_ARCH.deb**
-    * Example ... *sudo dpkg -i sn1ff-client_1.0-1_amd64.deb*
+    * Example ... *sudo dpkg -i sn1ff-client_1.0-3_amd64.deb*
 
 <br>
 

@@ -251,3 +251,42 @@ sn_exit_with_message() {
     exit 1
   fi
 }
+
+# Functions to check if iwe are running on the sn1ff server, or a remote client
+
+sn_has_sn1ff_monitor() {
+if [ -f "/usr/bin/sn1ff_monitor" ]; then
+  return 0 # File exists, local execution
+else
+  return 1 # File doesn't exist, remote execution
+fi
+}
+
+sn_has_sn1ff_client() {
+if [ -f "/usr/bin/sn1ff_client" ]; then
+  return 0 # File exists, local execution
+else
+  return 1 # File doesn't exist, remote execution
+fi
+}
+
+sn_is_sn1ff_server() {
+if sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
+  echo "IS SN1FF SERVER ..."
+  return 0
+else
+  echo "IS NOT SN1FF SERVER ..."
+  return 1
+fi
+}
+
+sn_is_sn1ff_client() {
+if ! sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
+  echo "IS SN1FF CLIENT ..."
+  return 0
+else
+  echo "IS NOT SN1FF CLIENT ..."
+  return 1
+fi
+}
+

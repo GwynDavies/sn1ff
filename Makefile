@@ -50,7 +50,7 @@
 # be made up-to-date
 #
 VERSION := 1.0
-REVISION := 2
+REVISION := 3
 FULL_VERSION := $(VERSION)-$(REVISION)
 
 # .----------------------------------------------------------------.
@@ -74,6 +74,7 @@ DEBIAN_CLIENT_PKG_FILE := $(DEBIAN_CLIENT_PKG_DIR).deb
 CC = gcc
 
 # Define the default CFLAGS (for normal compile)
+#CFLAGS = -fsanitize=leak -std=c11 -Wall -Wextra -Werror -pedantic -g -I./include
 CFLAGS = -std=c11 -Wall -Wextra -Werror -pedantic -g -I./include
 
 # Define the CFLAGS for code-coverage
@@ -327,6 +328,7 @@ deb-server-build:
 	cp $(BIN_DIR)/sn1ff_cleaner $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_license $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_conf $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
+	#strip --strip-unneeded $(DEBIAN_SERVER_PKG_DIR)/usr/bin/*
 	strip --strip-unneeded $(DEBIAN_SERVER_PKG_DIR)/usr/bin/*
 	sudo chmod +x $(DEBIAN_SERVER_PKG_DIR)/usr/bin/*
 	#
@@ -429,6 +431,7 @@ deb-client-build:
 	cp $(BIN_DIR)/sn1ff_client $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_license $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_conf $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/
+	#strip --strip-unneeded $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/*
 	strip --strip-unneeded $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/*
 	sudo chmod +x $(DEBIAN_CLIENT_PKG_DIR)/usr/bin/*
 	#

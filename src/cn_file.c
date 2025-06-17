@@ -213,7 +213,7 @@ int cn_file_clean(const char *filename) {
   FILE *file = fopen(filename, "rb+"); // Open for reading and writing
   if (!file) {
     cn_log_msg(LOG_ERR, __func__,
-               "'fopen' failedd to open file ->%s<- strerror(errno) -> %m <-",
+               "'fopen' failed to open file ->%s<- strerror(errno) -> %m <-",
                file);
     return 1;
   }

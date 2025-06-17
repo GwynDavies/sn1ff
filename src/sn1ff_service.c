@@ -202,10 +202,10 @@ int handle_msg_list(int client_sock, const char *sn1ff_files_dir) {
     size_t buffer_size_src = cn_multistr_reqd_buffsize(&ms);
     char *buffer_src = malloc(buffer_size_src);
     size_t serialized_size = cn_multistr_serialize(&ms, buffer_src);
-    cn_multistr_serialize(&ms, buffer_src);
 
     cn_log_msg(LOG_DEBUG, __func__, "Size of buffer -> %zu <-", __func__,
                sizeof(buffer_src));
+
     cn_log_msg(LOG_DEBUG, __func__, "Serialized size -> %zu <-", __func__,
                serialized_size);
 
@@ -218,12 +218,12 @@ int handle_msg_list(int client_sock, const char *sn1ff_files_dir) {
     size_t buffer_size_src = cn_multistr_reqd_buffsize(&ms);
     char *buffer_src = malloc(buffer_size_src);
     size_t serialized_size = cn_multistr_serialize(&ms, buffer_src);
-    cn_multistr_serialize(&ms, buffer_src);
 
     send_response(client_sock, buffer_src, serialized_size);
     free(buffer_src);
   }
 
+  cn_multistr_free(&ms);
   return 0;
 }
 

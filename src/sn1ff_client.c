@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
   if (result != 0) {
     fprintf(stderr, "Could not open/access conf file -> %s <-\n",
             sn_cfg_get_conf_file());
-    EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
 
   /*
