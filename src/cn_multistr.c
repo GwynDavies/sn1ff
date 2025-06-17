@@ -53,7 +53,9 @@ void cn_multistr_init(MultiString *ms) {
  * Free and "Zero out" resources
  */
 void cn_multistr_free(MultiString *ms) {
-  free(ms->strings);
+  if (ms->strings) {
+    free(ms->strings);
+  }
   ms->strings = NULL;
   ms->capacity = ms->total_length = ms->num_strings = 0;
 }
@@ -107,6 +109,9 @@ size_t cn_multistr_serialize(MultiString *ms, char *buffer) {
   return offset + ms->total_length;
 }
 
+/**
+ * De-serialize buffer into MultiString
+ */
 int cn_multistr_deserialize(MultiString *ms, const char *buffer) {
   size_t offset = 0;
 

@@ -65,7 +65,7 @@ int cn_remotefe_scp(const char *local_file, const char *remote_dest,
     if (execvp(args[0], args) == -1) {
       cn_log_msg(LOG_ERR, __func__,
                  "'execvp' gave error, strerror(errno) -> %m <-");
-      EXIT_FAILURE;
+      return EXIT_FAILURE;
     }
   } else {
     /*

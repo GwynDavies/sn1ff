@@ -225,6 +225,7 @@ int sn_file_read(const char *filename, FILE_DATA *file_data) {
   if (result != 0) {
     cn_log_msg(LOG_ERR, __func__,
                "Failed to extract filename from path -> %d\n\n", result);
+    fclose(file);
     return -3;
   }
 
@@ -255,16 +256,19 @@ int sn_file_read(const char *filename, FILE_DATA *file_data) {
     if (strncmp(line, "Host: ", 6) == 0) {
       if (cn_string_cp(file_data->header.host, sizeof(file_data->header.host),
                        line + 6) != 0) {
+        fclose(file);
         return -4;
       }
     } else if (strncmp(line, "IPv4: ", 6) == 0) {
       if (cn_string_cp(file_data->header.ipv4, sizeof(file_data->header.ipv4),
                        line + 6) != 0) {
+        fclose(file);
         return -5;
       }
     } else if (strncmp(line, "At: ", 4) == 0) {
       if (cn_string_cp(file_data->header.timestamp,
                        sizeof(file_data->header.timestamp), line + 4) != 0) {
+        fclose(file);
         return -6;
       }
     }

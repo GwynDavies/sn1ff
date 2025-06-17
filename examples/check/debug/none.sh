@@ -28,6 +28,10 @@
 #   -o pipefail (pipe errors)
 
 set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
 
 # .----------------------------------------------------------------.
 # |                                                                |

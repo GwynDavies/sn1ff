@@ -70,9 +70,10 @@ void print_usage(int level, char *program_name) {
  '----------------------------------------------------------------*/
 
 void deserialize_multistr(char *buffer, MultiString *ms) {
+  cn_multistr_free(ms);
+
   if (cn_multistr_deserialize(ms, buffer) == -1) {
     cn_log_msg(LOG_ERR, __func__, "Failed to de-serialize MultiString\n");
-    EXIT_FAILURE;
   }
 }
 
@@ -94,7 +95,7 @@ void send_message(int sock, const char *message) {
       cn_log_msg(LOG_ERR, __func__,
                  "'send' gave <= 0 bytes - server may have disconnected - "
                  "exiting, strerror(errno) -> %m <-");
-      EXIT_FAILURE;
+      return;
     }
     total_sent += sent_bytes;
   }
@@ -108,14 +109,14 @@ void send_message(int sock, const char *message) {
       cn_log_msg(LOG_ERR, __func__,
                  "'send' gave <= 0 bytes - server may have disconnected - "
                  "exiting, strerror(errno) -> %m <-");
-      EXIT_FAILURE;
+      return;
     }
     total_sent += sent_bytes;
   }
 }
 
 /**
- * Receive response
+ * Receive response on the socket, for a message sent to the server
  *
  * Param(s):
  *   sock
@@ -132,7 +133,7 @@ void receive_message_response(int sock, MultiString *ms) {
     cn_log_msg(LOG_ERR, __func__,
                "'recv' gave <= 0 bytes - server may have disconnected - "
                "exiting, strerror(errno) -> %m <-");
-    EXIT_FAILURE;
+    return;
   }
 
   length = ntohl(length);
@@ -162,7 +163,7 @@ void receive_message_response(int sock, MultiString *ms) {
                  "exiting, strerror(errno) -> %m <-");
 
       free(received_buffer);
-      EXIT_FAILURE;
+      return;
     }
 
     received += received_bytes;
@@ -289,7 +290,7 @@ int main(int argc, char *argv[]) {
   if (SOCKET < 0) {
     cn_log_msg(LOG_ERR, __func__,
                "'socket' failed on create, strerror(errno) -> %m <-");
-    EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
 
   memset(&addr, 0, sizeof(addr));
@@ -300,7 +301,7 @@ int main(int argc, char *argv[]) {
   if (connect(SOCKET, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
     cn_log_msg(LOG_ERR, __func__,
                "'socket' failed on connect, strerror(errno) -> %m <-");
-    EXIT_FAILURE;
+    return EXIT_FAILURE;
   }
 
   /*
@@ -310,7 +311,12 @@ int main(int argc, char *argv[]) {
   sn_ui_init();
 
   /*
-   * Processing loop
+   * Processing loop:
+   *   - Send commands to the server over socket
+   *       - LIST available check results files
+   *
+   *   - Receive responses over the socket from the server
+   *   - Exit when user indicates they want to quit
    */
 
   while (true) {
@@ -324,6 +330,8 @@ int main(int argc, char *argv[]) {
     // Receive response
 
     MultiString ms;
+    cn_multistr_free(&ms);
+    cn_multistr_init(&ms);
     receive_message_response(SOCKET, &ms);
 
     // Check there are sn1ff files to display
@@ -331,8 +339,12 @@ int main(int argc, char *argv[]) {
     if (ms.num_strings == 1 &&
         (strcmp(cn_multistr_getstr(&ms, 0), "NO_FILES") == 0)) {
       sn_ui_display_no_files(&user_cmd);
-      if (user_cmd == USER_CMD_QUIT)
+
+      cn_multistr_free(&ms);
+
+      if (user_cmd == USER_CMD_QUIT) {
         break;
+      }
 
       sleep(USER_DISPLAY_PAUSE_SECS);
       continue;
@@ -356,6 +368,7 @@ int main(int argc, char *argv[]) {
         if (errno == ENOENT) {
           cn_log_msg(LOG_ERR, __func__, "Skipping file not existing %s",
                      full_filename);
+          cn_multistr_free(&ms);
           continue;
         }
         // Skip file as it just could not be opened
@@ -365,6 +378,7 @@ int main(int argc, char *argv[]) {
                      "'fopen' gave an error opening file -> %s <-, "
                      "strerror(errno) -> %m <-",
                      full_filename);
+          cn_multistr_free(&ms);
           continue;
         };
       }
@@ -373,6 +387,8 @@ int main(int argc, char *argv[]) {
 
       if (user_cmd == USER_CMD_QUIT) {
         cn_log_msg(LOG_DEBUG, __func__, "User requested 'QUIT'");
+
+        cn_multistr_free(&ms);
         break;
       }
 
@@ -390,11 +406,13 @@ int main(int argc, char *argv[]) {
       sleep(1);
     }
 
+    cn_multistr_free(&ms);
+
     if (user_cmd == USER_CMD_QUIT) {
       cn_log_msg(LOG_DEBUG, __func__, "User requested 'QUIT'");
       break;
     }
-  }
+  } // while
 
   // Cleanup
 
