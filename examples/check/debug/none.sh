@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Set script safety - enables strict error handling: 
-#   -e (exit on error), 
-#   -u (unset variables), 
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
 #   -o pipefail (pipe errors)
 
 set -euo pipefail

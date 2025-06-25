@@ -22,7 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Notes:
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
+#   -o pipefail (pipe errors)
+
+set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -54,7 +63,7 @@ source "$SCRIPT_DIR/../../../lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 if [[ $# -eq 0 || $# -eq 1 ]]; then
-  SN_ADDR=$1
+  SN_ADDR="${1:-}"
   echo ""
   echo "$0"
   echo "$0 <$SN_ADDR>"
@@ -133,7 +142,7 @@ echo "Checking OpenSSH effective configuration using 'sshd -T'..." >>"$SN_FILENA
 CONFIG=$(sudo $LINUX_CMD) # I: Double quote to prevent globbing and word splitting.
 
 if [[ $? -ne 0 ]]; then
-  echo "Failed to run - ${LINUX_CMD}. You may need ithis to be added to 'sudo' privileges." >> "$SN_FILENAME"
+  echo "Failed to run - ${LINUX_CMD}. You may need ithis to be added to 'sudo' privileges." >>"$SN_FILENAME"
   sn_exit_with_message "FAILED: RUNNING -> SUDO ${LINUX_CMD}" "$SN_FILENAME" "ALRT" "$SN_ADDR"
 fi
 

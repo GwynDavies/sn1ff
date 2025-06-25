@@ -50,7 +50,7 @@
 # be made up-to-date
 #
 VERSION := 1.0
-REVISION := 3
+REVISION := 4
 FULL_VERSION := $(VERSION)-$(REVISION)
 
 # .----------------------------------------------------------------.

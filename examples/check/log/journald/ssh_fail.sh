@@ -24,7 +24,17 @@
 
 # Notes:
 #    User needs to be in systemd-journal group
-#
+
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
+#   -o pipefail (pipe errors)
+
+set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -56,13 +66,13 @@ source "$SCRIPT_DIR/../../../lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 if [[ $# -eq 0 || $# -eq 1 ]]; then
-  SN_ADDR=$1
+  SN_ADDR="${1:-}"
   echo ""
   echo "$0"
   echo "$0 <$SN_ADDR>"
   echo ""
 else
-  echo "EXPECTED 0 OR 1 ARGUMENTS - $0  || $0 <ADDR>"
+  echo "EXPECTED 0 OR 1 ARGUMENTS - $0 || $0 <ADDR>"
   exit 1
 fi
 
@@ -129,7 +139,7 @@ sn_append_header "$CHECKID: CHECK FOR FAILED SSH ATTEMPTS" "$SN_FILENAME"
 
 # Run journalctl and extract disk usage line
 
-output=$(/usr/bin/journalctl -u sshd --since "1 day ago" --utc | grep "Failed password")
+output=$(/usr/bin/journalctl -u sshd --since "1 day ago" --utc | grep "Failed password" || true)
 
 if [ ! -z "$output" ]; then
   echo "WARN: Failed ssh attempts found" >>"$SN_FILENAME"

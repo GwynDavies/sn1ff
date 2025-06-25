@@ -65,7 +65,7 @@ sn_linux_group_exists() {
 sn_linux_group_member() {
   local the_group="$1"
 
-  if groups | grep "$REQUIRED_GROUP" >/dev/null 2>&1; then
+  if groups | grep "$the_group" >/dev/null 2>&1; then
     # Current user is a member of group
     return 0
   else

@@ -194,11 +194,17 @@ sn_append_message_center() {
   printf "%*s\n\n\n" $((pad + ${#message})) "$message" >>"$sn_filename" 2>&1
 }
 
+# @exit 0 for OKAY
+#       1 for NONE
+#       2 for WARN
+#       3 for ALRT
 sn_exit_with_message() {
   local message="$1"
   local sn_filename="$2"
   local sn_status="$3"
   local sn_addr="$4"
+  local exit_code
+  declare -i exit_code
 
   sn_append_trailer_line "$sn_filename"
 
@@ -207,23 +213,31 @@ sn_exit_with_message() {
   case "$sn_status" in
     "ALRT")
       sn_ttl=$ALRT_TTL
+      exit_code=3
+      readonly exit_code
       ;;
 
     "WARN")
       sn_ttl=$WARN_TTL
+      exit_code=2
+      readonly exit_code
       ;;
 
     "OKAY")
       sn_ttl=$OKAY_TTL
+      exit_code=0
+      readonly exit_code
       ;;
 
     "NONE")
       sn_ttl=$NONE_TTL
+      exit_code=1
+      readonly exit_code
       ;;
 
     *)
       echo "ERROR in STATUS ARGUMENT -> $sn_status <- EXITING ..."
-      exit 1
+      exit 5 # script error
       ;;
   esac
 
@@ -245,48 +259,44 @@ sn_exit_with_message() {
   fi
 
   # Exit Bash script
-  if [ "$sn_status" = "OKAY" ]; then
-    exit 0
-  else
-    exit 1
-  fi
+  echo "$sn_status"
+  exit $exit_code
 }
 
 # Functions to check if iwe are running on the sn1ff server, or a remote client
 
 sn_has_sn1ff_monitor() {
-if [ -f "/usr/bin/sn1ff_monitor" ]; then
-  return 0 # File exists, local execution
-else
-  return 1 # File doesn't exist, remote execution
-fi
+  if [ -f "/usr/bin/sn1ff_monitor" ]; then
+    return 0 # File exists, local execution
+  else
+    return 1 # File doesn't exist, remote execution
+  fi
 }
 
 sn_has_sn1ff_client() {
-if [ -f "/usr/bin/sn1ff_client" ]; then
-  return 0 # File exists, local execution
-else
-  return 1 # File doesn't exist, remote execution
-fi
+  if [ -f "/usr/bin/sn1ff_client" ]; then
+    return 0 # File exists, local execution
+  else
+    return 1 # File doesn't exist, remote execution
+  fi
 }
 
 sn_is_sn1ff_server() {
-if sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
-  echo "IS SN1FF SERVER ..."
-  return 0
-else
-  echo "IS NOT SN1FF SERVER ..."
-  return 1
-fi
+  if sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
+    echo "IS SN1FF SERVER ..."
+    return 0
+  else
+    echo "IS NOT SN1FF SERVER ..."
+    return 1
+  fi
 }
 
 sn_is_sn1ff_client() {
-if ! sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
-  echo "IS SN1FF CLIENT ..."
-  return 0
-else
-  echo "IS NOT SN1FF CLIENT ..."
-  return 1
-fi
+  if ! sn_has_sn1ff_monitor && sn_has_sn1ff_client; then
+    echo "IS SN1FF CLIENT ..."
+    return 0
+  else
+    echo "IS NOT SN1FF CLIENT ..."
+    return 1
+  fi
 }
-

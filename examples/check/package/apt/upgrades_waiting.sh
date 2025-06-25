@@ -25,6 +25,17 @@
 # Note:
 #     Requries sudo ability for one or more commands
 
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
+#   -o pipefail (pipe errors)
+
+set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
+
 # .----------------------------------------------------------------.
 # |                                                                |
 # | SOURCE SN1FF BASH LIBRARIES                                    |
@@ -55,7 +66,7 @@ source "$SCRIPT_DIR/../../../lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 if [[ $# -eq 0 || $# -eq 1 ]]; then
-  SN_ADDR=$1
+  SN_ADDR="${1:-}"
   echo ""
   echo "$0"
   echo "$0 <$SN_ADDR>"
@@ -81,7 +92,7 @@ CMD_APT_UPDATE="/usr/bin/apt update -qq"
 # '----------------------------------------------------------------'
 
 get_upgradable_count() {
-  apt list --upgradable 2>/dev/null | grep -c 'upgradable from'
+  apt list --upgradable 2>/dev/null | grep -c 'upgradable from' || true
 }
 
 # .----------------------------------------------------------------.

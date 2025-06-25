@@ -22,9 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Set script safety - enables strict error handling: 
-#   -e (exit on error), 
-#   -u (unset variables), 
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
 #   -o pipefail (pipe errors)
 
 set -euo pipefail
@@ -39,11 +39,11 @@ exec 2>&1
 # |                                                                |
 # '----------------------------------------------------------------'
 
-source "$(dirname "$0")/../../lib/sn1ff_lib.sh"
+source "$(dirname "$0")/../../../lib/sn1ff_lib.sh"
 
 # Override default TTL values (minutes)
 
-sn_set_none_ttl 2
+sn_set_okay_ttl 1
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -76,11 +76,7 @@ fi
 # |                                                                |
 # '----------------------------------------------------------------'
 
-CHECKID="DEBUG SN1FF MONITOR"
-
-STATE_FILE_PROC="/var/tmp/sn1ff_mem_last_proc.txt"
-STATE_FILE_SVC="/var/tmp/sn1ff_mem_last_svc.txt"
-TMP_FILE_PROC="/var/tmp/sn1ff_mem_curr_proc.txt"
+CHECKID="DISK USAGE"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -92,8 +88,8 @@ SN_FILENAME=$(sn1ff_client -b)
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
- echo "ERROR: FAILED TO BEGIN SN1FF FILE - STATUS -> $exit_code SN_FILENAME -> SN_FILENAME"
- exit 1
+  echo "ERROR: FAILED TO BEGIN SN1FF FILE - STATUS -> $exit_code SN_FILENAME -> SN_FILENAME"
+  exit 1
 fi
 
 # .----------------------------------------------------------------.
@@ -106,98 +102,50 @@ sn_append_titlebox "$CHECKID" "$SN_FILENAME"
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK ON SN1FF SERVER                                          |
+# | CHECK DISK USAGE                                               |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_first_header "$CHECKID: CHECK ON SN1FF SERVER" "$SN_FILENAME"
+sn_append_first_header "$CHECKID: CHECK DISK USAGE" "$SN_FILENAME"
 
-sn_append_message "Check we are on the sn1ff server, exit otherwise ..." "$SN_FILENAME"
+# Whitelist of mount points (partial match allowed)
 
-if ! sn_is_sn1ff_server; then
-  sn_exit_with_message "RESULT: NOT ON SN1FF SERVER - EXITING" "$SN_FILENAME" "NONE" "$SN_ADDR"
-fi
+WHITELIST=("/mnt/external" "/dev/lxd" "/opt/google/cros-containers" "/dev/.lxd-mounts" "/run/user" "/dev/shm" "/dev/.cros_milestone" "/dev/kvm")
 
+# Disk usage threshold%
 
-# .----------------------------------------------------------------.
-# |                                                                |
-# | CHECK PROCESSES                                                |
-# |                                                                |
-# '----------------------------------------------------------------'
+THRESHOLD=95
+CHECK_FAILED=false
 
-sn_append_header "$CHECKID: CHECK PROCESSESS" "$SN_FILENAME"
+while read -r filesystem size used avail use_perc mount_point; do
+  use_num=${use_perc%\%}
 
-sn_append_message "Collecting memory usage for sn1ff* processes..." "$SN_FILENAME"
+  skip=false
+  for white in "${WHITELIST[@]}"; do
+    if [[ "$mount_point" == *"$white"* ]]; then
+      skip=true
+      break
+    fi
+  done
 
-# Clear tmp file
+  if ! $skip && ((use_num > THRESHOLD)); then
+    echo "ERROR: Mount point $mount_point ($filesystem) is at ${use_perc} usage." >>"$SN_FILENAME"
+    CHECK_FAILED=true
+  fi
+done < <(df -P | tail -n +2)
 
-> "$TMP_FILE_PROC"
+echo "" >>"$SN_FILENAME"
 
-# Header
-
-printf "%-8s %-10s %-10s %-10s %s\n" "PID" "RSS(KB)" "RSS(MB)" "DELTA(KB)" "CMD" >> "$SN_FILENAME"
-
-# Get matching PIDs
-
-PIDS=$(pgrep -f '^sn1ff')
-
-if [[ -z "$PIDS" ]]; then
-    sn_append_message "No matching sn1ff* processes found." "$SN_FILENAME"
-else
-    for pid in $PIDS; do
-        # Get RSS and CMD
-        read -r rss cmd <<< $(ps -o rss=,cmd= -p "$pid" --no-headers)
-        rss=${rss:-0}
-        cmd=${cmd:-unknown}
-        rss_mb=$((rss / 1024))
-
-        delta="N/A"
-        if [[ -f "$STATE_FILE_PROC" ]]; then
-            last_rss=$(grep "^$pid " "$STATE_FILE_PROC" | awk '{print $2}' || true)
-            if [[ -n "$last_rss" ]]; then
-                delta=$((rss - last_rss))
-            else
-                delta="new"
-            fi
-        fi
-
-        printf "%-8s %-10s %-10s %-10s %s\n" "$pid" "$rss" "$rss_mb" "$delta" "$cmd" >> "$SN_FILENAME"
-
-        echo "$pid $rss" >> "$TMP_FILE_PROC"
-    done
+if [ "$CHECK_FAILED" = true ]; then
+  echo "One or more disk usages are over ${THRESHOLD}% usage." >>"$SN_FILENAME"
+  sn_exit_with_message "RESULT: CHECK DISK USAGE FAILED" "$SN_FILENAME" "ALRT" "$SN_ADDR"
 fi
 
 # .----------------------------------------------------------------.
 # |                                                                |
-# | CHECK SERVICE                                                  |
+# | ALL CHECKS PASSED                                              |
 # |                                                                |
 # '----------------------------------------------------------------'
 
-sn_append_header "$CHECKID: CHECK SERVICE" "$SN_FILENAME"
-
-# Get sn1ff.service memory from systemctl show
-
-sn_append_message "Get sn1ff.service memory from systemctl" "$SN_FILENAME"
-svc_mem=$(systemctl show sn1ff.service -p MemoryCurrent | cut -d= -f2)
-
-# Convert bytes to KB
-
-svc_mem_kb=$((svc_mem / 1024))
-svc_mem_mb=$((svc_mem_kb / 1024))
-
-delta_svc="N/A"
-if [[ -f "$STATE_FILE_SVC" ]]; then
-    last_svc_mem=$(cat "$STATE_FILE_SVC")
-    delta_svc=$((svc_mem_kb - last_svc_mem))
-fi
-
-sn_append_message "sn1ff.service memory: ${svc_mem_kb} KB (${svc_mem_mb} MB)" "$SN_FILENAME"
-sn_append_message "sn1ff.service memory delta since last run: ${delta_svc} KB" "$SN_FILENAME"
-
-# Save current states
-
-mv "$TMP_FILE_PROC" "$STATE_FILE_PROC"
-echo "$svc_mem_kb" > "$STATE_FILE_SVC"
-
-sn_exit_with_message "RESULT: SN1FF MONITOR" "$SN_FILENAME" "NONE" "$SN_ADDR"
-
+echo "All non-whitelisted mount points are under ${THRESHOLD}% usage." >>"$SN_FILENAME"
+sn_exit_with_message "RESULT: ALL CHECKS PASSED" "$SN_FILENAME" "OKAY" "$SN_ADDR"
