@@ -22,12 +22,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Check disk
+
+./run_chk.sh -n ./check/device/disk/usage.sh
+
 # Check file
 
 ./run_chk.sh -n ./check/file/suid_sgid.sh
 ./run_chk.sh -n ./check/file/world_writeable.sh
 
-# log/journald
+# Check log/journald
 
 ./run_chk.sh -n ./check/log/journald/disk_usage.sh
 ./run_chk.sh -n ./check/log/journald/ssh_fail.sh

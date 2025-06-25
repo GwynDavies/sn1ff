@@ -22,27 +22,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN      
 THE SOFTWARE.
 
-# Various commands to clean the JournalD disk usage
 
-## Clean by time
+# PURPOSE
 
-* --vacuum-time=<time>: Remove log entries older than a specified date.
-  * sudo journalctl --vacuum-time=1d
-  * sudo journalctl --vacuum-time=7d
-  * sudo journalctl --vacuum-time=1month
-  * sudo journalctl --vacuum-time=1years
+Detect disk resource issues, which could cause system instability.
 
+# CHECKS
 
-## Clean by size
+## usage.sh
 
-* --vacuum-size=<bytes>: Shrink the journal to a desired size.
-  * sudo journalctl --vacuum-size=1M
-  * sudo journalctl --vacuum-size=500M
-  * sudo journalctl --vacuum-size=1G
-
-
-## Clean by number journal files
-
-* --vacuum-files=<int>: Reduce the number of journal files to <int>.
-  * sudo journalctl --vacuum-files=10
+Detect disk mounts that are using a high percentage of their available space
 

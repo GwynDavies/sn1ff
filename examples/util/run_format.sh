@@ -30,4 +30,4 @@
 
 # sudo apt install shfmt
 
-find . -type f -name "*.sh" -exec shfmt -i 2 -ci -w -bn {} +
+find ../ -type f -name "*.sh" -exec shfmt -i 2 -ci -w -bn {} +

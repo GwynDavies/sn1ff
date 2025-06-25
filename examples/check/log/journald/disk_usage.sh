@@ -25,6 +25,17 @@
 # Notes:
 #    GROUP - User must be member of "systemd-journal"
 
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
+#   -o pipefail (pipe errors)
+
+set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
+
 # .----------------------------------------------------------------.
 # |                                                                |
 # | SOURCE SN1FF BASH LIBRARIES                                    |
@@ -55,13 +66,13 @@ source "$SCRIPT_DIR/../../../lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 if [[ $# -eq 0 || $# -eq 1 ]]; then
-  SN_ADDR=$1
+  SN_ADDR="${1:-}"
   echo ""
   echo "$0"
   echo "$0 <$SN_ADDR>"
   echo ""
 else
-  echo "EXPECTED 0 OR 1 ARGUMENTS - $0  || $0 <ADDR>"
+  echo "EXPECTED 0 OR 1 ARGUMENTS - $0 || $0 <ADDR>"
   exit 1
 fi
 

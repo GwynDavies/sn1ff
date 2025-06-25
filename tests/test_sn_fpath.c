@@ -48,7 +48,7 @@ Test(sn_fpath, valid_status_values) {
   regex_t regex;
   const char *pattern =
       "^/home/chroot/sn1ff/uploads/"
-      "[0-9a-fA-F\\-]+_(ALRT|WARN|OKAY|NONE)_174[0-9]{7}\\.snff$";
+      "[0-9a-fA-F\\-]+_(ALRT|WARN|OKAY|NONE)_17[0-9]{8}\\.snff$";
 
   int ret = regcomp(&regex, pattern, REG_EXTENDED);
   cr_assert_eq(ret, 0, "Failed to compile regex");
@@ -56,5 +56,6 @@ Test(sn_fpath, valid_status_values) {
   ret = regexec(&regex, new_dest, 0, NULL, 0);
   regfree(&regex);
 
+  //printf("*** %s ***\n", new_dest);
   cr_assert_eq(ret, 0, "The string did not match the expected pattern");
 }

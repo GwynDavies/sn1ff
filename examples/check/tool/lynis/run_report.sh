@@ -24,7 +24,17 @@
 
 # Notes:
 # 1. Requires sudo setup
-#
+
+# Set script safety - enables strict error handling:
+#   -e (exit on error),
+#   -u (unset variables),
+#   -o pipefail (pipe errors)
+
+set -euo pipefail
+#set -x
+trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
+exec > >(tee -i script.log)
+exec 2>&1
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -56,7 +66,7 @@ source "$SCRIPT_DIR/../../../lib/sn1ff_linux_lib.sh"
 # '----------------------------------------------------------------'
 
 if [[ $# -eq 0 || $# -eq 1 ]]; then
-  SN_ADDR=$1
+  SN_ADDR="${1:-}"
   echo ""
   echo "$0"
   echo "$0 <$SN_ADDR>"
@@ -129,7 +139,7 @@ fi
 
 sn_append_first_header "$CHECKID: CHECK REUIRED HAVE SUDO ABILITY TO VIEW REPORT" "$SN_FILENAME"
 
-sn_linux_can_sudo_cmd "$EXAMINE_LYNIS_REPORT_CMD"
+sn_linux_can_sudo_cmd "$EXAMINE_LYNIS_RPT_CMD"
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then
