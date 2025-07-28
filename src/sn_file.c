@@ -76,6 +76,7 @@ int sn_file_write_header(FILE *file, const HEADER *hdr) {
   fprintf(file, "Host: %s\n", hdr->host);
   fprintf(file, "IPv4: %s\n", hdr->ipv4);
   fprintf(file, "At: %s\n", hdr->timestamp);
+  fprintf(file, "CheckID: %s\n", hdr->checkid);
   fprintf(file, "\n\n");
 
   return 0;
@@ -96,7 +97,7 @@ int sn_file_write_header(FILE *file, const HEADER *hdr) {
  *         -1 unable to create directory for the file
  *         -2 unable to open the file to create it
  */
-int sn_file_begin(char *file_path) {
+int sn_file_begin(char *file_path, const char *checkid) {
   char sn1ff_client_dir[256];
   int sn1ff_client_dir_sz = 256;
 
@@ -121,7 +122,8 @@ int sn_file_begin(char *file_path) {
 
   HEADER hdr = {.host = "No hostname",
                 .ipv4 = "No ip for eth0",
-                .timestamp = "_______ __, 20__ __:__:__"};
+                .timestamp = "_______ __, 20__ __:__:__",
+                .checkid = "N/A"};
 
   // Set actual hostname in header
 
@@ -143,6 +145,10 @@ int sn_file_begin(char *file_path) {
   result = cn_host_utcdt(utcdt);
   if (result == 0)
     strncpy(hdr.timestamp, utcdt, CN_HOST_UTCDT_LENGTH);
+
+  // Set actual checkid in header
+  if (checkid != NULL)
+    strncpy(hdr.checkid, checkid, SN_FILE_HEADER_CHECKID_LENGTH_D);
 
   // Call the function to generate the unique filename
 
@@ -188,6 +194,7 @@ int sn_file_begin(char *file_path) {
  *         -4 Failed to extract header value 'Host: '
  *         -5 Failed to extract header value 'IPv4: '
  *         -6 Failed to extract header value 'At: '
+ *         -7 Failed to extract header value 'CheckID: '
  */
 int sn_file_read(const char *filename, FILE_DATA *file_data) {
   FILE *file = fopen(filename, "r");
@@ -250,6 +257,7 @@ int sn_file_read(const char *filename, FILE_DATA *file_data) {
     cn_string_trim_newline(line);
 
     // Empty line, done with the header
+
     if (strlen(line) == 0)
       break;
 
@@ -270,6 +278,12 @@ int sn_file_read(const char *filename, FILE_DATA *file_data) {
                        sizeof(file_data->header.timestamp), line + 4) != 0) {
         fclose(file);
         return -6;
+      }
+    } else if (strncmp(line, "CheckID: ", 9) == 0) {
+      if (cn_string_cp(file_data->header.checkid,
+                       sizeof(file_data->header.checkid), line + 9) != 0) {
+        fclose(file);
+        return -7;
       }
     }
   }
@@ -346,6 +360,7 @@ void sn_file_delete(const char *file_dir, const char *file_name) {
   }
 
   // Rename before deleting
+
   snprintf(new_file_path, sizeof(new_file_path), "%s/%s%s", file_dir,
            DELETE_PREFIX, file_name);
 
@@ -360,6 +375,7 @@ void sn_file_delete(const char *file_dir, const char *file_name) {
   }
 
   // Now delete safely
+
   if (unlink(new_file_path) == -1) {
     cn_log_msg(LOG_ERR, __func__,
                "'unlink' gave error deleting renamed file -> %s <-, "
@@ -371,4 +387,85 @@ void sn_file_delete(const char *file_dir, const char *file_name) {
 
   flock(fd, LOCK_UN);
   close(fd);
+}
+
+/*----------------------------------------------------------------.
+ |                                                                |
+ |  Copy sn1ff file                                               |
+ |                                                                |
+ '----------------------------------------------------------------*/
+
+int sn_file_copy(const char *from_dir, const char *to_dir,
+                 const char *file_name) {
+  char source_path[1024];
+  char dest_path[1024];
+  char tmp_path[1024];
+
+  int input = -1, output = -1;
+  int result = 0;
+
+  // Construct full source, destination, and temporary file paths
+
+  snprintf(source_path, sizeof(source_path), "%s/%s", from_dir, file_name);
+  snprintf(dest_path, sizeof(dest_path), "%s/%s", to_dir, file_name);
+  snprintf(tmp_path, sizeof(tmp_path), "%s/.%s.tmp", to_dir, file_name);
+
+  // Open source file
+
+  if ((input = open(source_path, O_RDONLY)) == -1) {
+    perror("open source");
+    return -1;
+  }
+
+  // Open/create temp destination file with mode 0600
+
+  if ((output = creat(tmp_path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)) == -1) {
+    perror("creat temporary destination");
+    close(input);
+    return -1;
+  }
+
+  // Get size of the source file
+
+  struct stat file_stat;
+  if (fstat(input, &file_stat) == -1) {
+    perror("fstat");
+    result = -1;
+    goto cleanup;
+  }
+
+  // Copy data using sendfile()
+
+  off_t offset = 0;
+  while (offset < file_stat.st_size) {
+    ssize_t sent = sendfile(output, input, &offset, file_stat.st_size - offset);
+    if (sent == -1) {
+      perror("sendfile");
+      result = -1;
+      goto cleanup;
+    }
+  }
+
+  // Close files before renaming
+
+  close(input);
+  close(output);
+  input = output = -1;
+
+  // Rename temp file to final destination (atomic if on same filesystem)
+
+  if (rename(tmp_path, dest_path) == -1) {
+    perror("rename");
+    result = -1;
+  }
+
+  return result;
+
+cleanup:
+  if (input != -1)
+    close(input);
+  if (output != -1)
+    close(output);
+  unlink(tmp_path); // Remove incomplete temp file on error
+  return result;
 }

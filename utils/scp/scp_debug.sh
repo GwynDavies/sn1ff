@@ -25,7 +25,7 @@
 USER="sn1ff"
 CHROOT_BASE="/home/chroot"
 JAIL_ROOT="$CHROOT_BASE/$USER"
-UPLOAD_DIR="$JAIL_ROOT/uploads"
+UPLOAD_DIR="$JAIL_ROOT/upload"
 
 echo "🔍 Checking chroot jail for user: $USER"
 echo "Chroot base: $CHROOT_BASE"
@@ -50,13 +50,13 @@ fi
 
 # 3. Check chroot path
 if [[ ! -d "$JAIL_ROOT" ]]; then
-    echo "❌ Chroot path $JAIL_ROOT does not exist."
+    echo "Chroot path $JAIL_ROOT does not exist."
     exit 1
 else
     echo "✅ Chroot path exists."
 fi
 
-# 4. Check uploads directory inside jail
+# 4. Check upload directory inside jail
 echo
 echo "📁 Checking $UPLOAD_DIR..."
 

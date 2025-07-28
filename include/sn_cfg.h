@@ -25,6 +25,7 @@ SOFTWARE.
 #ifndef SN_CFG_H
 #define SN_CFG_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,9 +41,13 @@ char *sn_cfg_get_conf_file(void);
 int sn_cfg_get_minloglevel(void);
 char *sn_cfg_get_client_ttls(void);
 char *sn_cfg_get_server_address(void);
+bool sn_cfg_watch_enabled(void);
+bool sn_cfg_export_enabled(void);
 
-char *sn_cfg_get_server_uploads_dir(void);
-char *sn_cfg_get_server_uploads_base_dir(void);
+const char *sn_cfg_get_server_upload_dir(void);
+const char *sn_cfg_get_server_upload_base_dir(void);
+const char *sn_cfg_get_server_watch_dir(void);
+const char *sn_cfg_get_server_export_dir(void);
 
 char *sn_cfg_get_server_user(void);
 char *sn_cfg_get_server_group(void);

@@ -37,6 +37,8 @@ char CONFIG_FILE[CONFIG_FILE_SZ] = "/etc/sn1ff/sn1ff.conf";
  * min_log_level=info
  * client_ttls=5,4,3,2
  * server_address=192.0.2.0
+ * watch=true
+ * export=false
  */
 #define MIN_LOG_LEVEL_STR_SZ 10
 char MIN_LOG_LEVEL_STR[MIN_LOG_LEVEL_STR_SZ];
@@ -48,17 +50,39 @@ char CLIENT_TTLS_STR[CLIENT_TTLS_STR_SZ];
 #define SERVER_ADDRESS_STR_SZ 30
 char SERVER_ADDRESS_STR[SERVER_ADDRESS_STR_SZ];
 
-#define SERVER_UPLOADS_DIR_SZ 128
-char SERVER_UPLOADS_DIR[SERVER_UPLOADS_DIR_SZ] = "/home/chroot/sn1ff/uploads/";
+bool watch_enabled = true;
+bool export_enabled = false;
 
-#define SERVER_UPLOADS_BASE_DIR_SZ 32
-char SERVER_UPLOADS_BASE_DIR[SERVER_UPLOADS_BASE_DIR_SZ] = "/uploads";
+/*
+ * Directories
+ */
+
+#define SERVER_BASE_PATH "/home/chroot/sn1ff/upload"
+#define SERVER_BASE_PATH_SZ (sizeof(SERVER_BASE_PATH))
+
+const char *SERVER_UPLOAD_BASE_DIR = "/upload";
+
+#define SERVER_UPLOAD_DIR SERVER_BASE_PATH "/"
+#define SERVER_WATCH_DIR SERVER_BASE_PATH "/watch/"
+#define SERVER_EXPORT_DIR SERVER_BASE_PATH "/export/"
+
+#define SERVER_UPLOAD_DIR_SZ (sizeof(SERVER_UPLOAD_DIR))
+#define SERVER_WATCH_DIR_SZ (sizeof(SERVER_WATCH_DIR))
+#define SERVER_EXPORT_DIR_SZ (sizeof(SERVER_EXPORT_DIR))
+
+/*
+ * User, group
+ */
 
 #define SERVER_USER_SZ 32
 char SERVER_USER[SERVER_USER_SZ] = "sn1ff";
 
 #define SERVER_GROUP_SZ 32
 char SERVER_GROUP[SERVER_GROUP_SZ] = "sn1ff";
+
+/*
+ * Socket
+ */
 
 #define SERVER_UNIX_DOMAIN_SOCKET_PATH "/tmp/sn1ff_socket"
 
@@ -130,6 +154,34 @@ int sn_cfg_load(void) {
                    line);
         return -1;
       }
+    } else if (key && value && strcmp(key, "watch_enabled") == 0) {
+      if (strcmp(value, "true") == 0) {
+        watch_enabled = true;
+      } else if (strcmp(value, "false") == 0) {
+        watch_enabled = false;
+      } else {
+        cn_log_msg(
+            LOG_WARNING, __func__,
+            "Invalid value for 'watch_enabled', expected 'true' or 'false', "
+            "got -> %s <-",
+            value);
+        fclose(file);
+        return -1;
+      }
+    } else if (key && value && strcmp(key, "export_enabled") == 0) {
+      if (strcmp(value, "true") == 0) {
+        export_enabled = true;
+      } else if (strcmp(value, "false") == 0) {
+        export_enabled = false;
+      } else {
+        cn_log_msg(
+            LOG_WARNING, __func__,
+            "Invalid value for 'export_enabled', expected 'true' or 'false', "
+            "got -> %s <-",
+            value);
+        fclose(file);
+        return -1;
+      }
     } else {
       fprintf(stderr, "%s: config entry -> %s <- not recognized", __func__,
               line);
@@ -148,15 +200,23 @@ char *sn_cfg_get_client_ttls(void) { return CLIENT_TTLS_STR; }
 
 char *sn_cfg_get_server_address(void) { return SERVER_ADDRESS_STR; }
 
+bool sn_cfg_watch_enabled(void) { return watch_enabled; }
+
+bool sn_cfg_export_enabled(void) { return export_enabled; }
+
 /*
- * Server uploads dir
+ * Server directories
  */
 
-char *sn_cfg_get_server_uploads_dir(void) { return SERVER_UPLOADS_DIR; }
+const char *sn_cfg_get_server_upload_dir(void) { return SERVER_UPLOAD_DIR; }
 
-char *sn_cfg_get_server_uploads_base_dir(void) {
-  return SERVER_UPLOADS_BASE_DIR;
+const char *sn_cfg_get_server_upload_base_dir(void) {
+  return SERVER_UPLOAD_BASE_DIR;
 }
+
+const char *sn_cfg_get_server_watch_dir(void) { return SERVER_WATCH_DIR; }
+
+const char *sn_cfg_get_server_export_dir(void) { return SERVER_EXPORT_DIR; }
 
 /*
  * Server user

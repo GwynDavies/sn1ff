@@ -79,7 +79,12 @@ fi
 # |                                                                |
 # '----------------------------------------------------------------'
 
-CHECKID="UFW"
+# Get script path/name, for the scripts "Check ID"
+
+SCRIPT_PATH="$(realpath "$0")"
+MARKER="check"
+checkid="$(sn_get_path_name "$SCRIPT_PATH" "$MARKER")"
+CHECKID="${checkid^^}"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -95,7 +100,7 @@ CHECKID="UFW"
 # |                                                                |
 # '----------------------------------------------------------------'
 
-SN_FILENAME=$(sn1ff_client -b)
+SN_FILENAME=$(sn1ff_client -b -i "$checkid")
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then

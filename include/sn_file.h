@@ -34,6 +34,7 @@ SOFTWARE.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -55,10 +56,14 @@ typedef struct {
  * HEADER
  */
 
+#define SN_FILE_HEADER_CHECKID_LENGTH 128
+#define SN_FILE_HEADER_CHECKID_LENGTH_D (SN_FILE_HEADER_CHECKID_LENGTH + 1)
+
 typedef struct {
   char host[CN_HOST_HOSTNAME_LENGTH_D];
   char ipv4[CN_HOST_IPV4_LENGTH_D];
   char timestamp[CN_HOST_UTCDT_LENGTH_D];
+  char checkid[SN_FILE_HEADER_CHECKID_LENGTH_D];
 } HEADER;
 
 /**
@@ -73,15 +78,15 @@ typedef struct {
   size_t body_lines;
 } FILE_DATA;
 
-int sn_file_begin(char *filename);
+int sn_file_begin(char *file_path, const char *checkid);
 
 int sn_file_write_header(FILE *file, const HEADER *hdr);
-
-int sn_local_copy(const char *file_path, const char *status,
-                  const char *dest_dir);
 
 int sn_file_read(const char *file_path, FILE_DATA *file_data);
 
 void sn_file_delete(const char *file_dir, const char *file_name);
+
+int sn_file_copy(const char *from_dir, const char *to_dir,
+                 const char *file_name);
 
 #endif

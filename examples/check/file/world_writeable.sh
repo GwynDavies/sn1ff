@@ -86,7 +86,12 @@ fi
 # |                                                                |
 # '----------------------------------------------------------------'
 
-CHECKID="WORLD WRITEABLE"
+# Get script path/name, for the scripts "Check ID"
+
+SCRIPT_PATH="$(realpath "$0")"
+MARKER="check"
+checkid="$(sn_get_path_name "$SCRIPT_PATH" "$MARKER")"
+CHECKID="${checkid^^}"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -94,7 +99,7 @@ CHECKID="WORLD WRITEABLE"
 # |                                                                |
 # '----------------------------------------------------------------'
 
-SN_FILENAME=$(sn1ff_client -b)
+SN_FILENAME=$(sn1ff_client -b -i "$checkid")
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
@@ -130,6 +135,7 @@ world_writable_files=$(find / -xdev -type f -perm -0002 -exec ls -l {} \; 2>/dev
 
 if [[ -n "$world_writable_files" ]]; then
   echo "ERROR: World-writable files found!" >>"$SN_FILENAME" 2>&1
+  echo "$world_writable_files" >>"$SN_FILENAME" 2>&1
   sn_exit_with_message "FAILED: CHECK FOR FOR 'WORLD WRITEABLE FILES'" "$SN_FILENAME" "ALRT" "$SN_ADDR"
 else
   echo "No world-writable files found." >>"$SN_FILENAME" 2>&1

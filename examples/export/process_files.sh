@@ -11,34 +11,32 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR,
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
-# Set script safety - enables strict error handling:
-#   -e (exit on error),
-#   -u (unset variables),
-#   -o pipefail (pipe errors)
+# Exported check results files
 
-set -euo pipefail
-#set -x
-trap 'echo "Script failed at line $LINENO with exit code $?" >&2' ERR
-exec > >(tee -i script.log)
-exec 2>&1
+DIR="/home/chroot/sn1ff/upload/export"
+CSV_FILE="${DIR}/_export_files.csv"
 
-# Clear out the logs
+# Ensure CSV file exists, optionally add a header once
 
-sudo truncate -c --size 0 /var/log/wtmp
-sudo truncate -c --size 0 /var/log/btmp
-sudo truncate -c --size 0 /var/log/lastlog
+if [ ! -f "$CSV_FILE" ]; then
+  echo 'At,Host,IPv4,STATE,CheckID,GUID,TTL,filename,App,Ver' >"$CSV_FILE"
+fi
 
-ls -l /var/log/wtmp
-ls -l /var/log/btmp
-ls -l /var/log/lastlog
+# Clean old entries
+
+./do_clean_csv.sh "$CSV_FILE"
+
+# Process each file in order of oldest first
+
+./do_update_csv.sh "$DIR" "$CSV_FILE"

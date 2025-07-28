@@ -50,7 +50,7 @@
 # be made up-to-date
 #
 VERSION := 1.0
-REVISION := 4
+REVISION := 5
 FULL_VERSION := $(VERSION)-$(REVISION)
 
 # .----------------------------------------------------------------.
@@ -119,12 +119,13 @@ TEST_DIR = tests
 # |                                                                |
 # '----------------------------------------------------------------'
 
-TARGETS = sn1ff_client sn1ff_service sn1ff_monitor sn1ff_cleaner sn1ff_license sn1ff_conf $(DEBIAN_SERVER_PKG_FILE) $(DEBIAN_CLIENT_PKG_FILE)
+TARGETS = sn1ff_client sn1ff_service sn1ff_monitor sn1ff_greeter sn1ff_cleaner sn1ff_license sn1ff_conf $(DEBIAN_SERVER_PKG_FILE) $(DEBIAN_CLIENT_PKG_FILE)
 
 # Sources and objects for each target
 CLIENT_SOURCES  = $(SRC_DIR)/sn1ff_client.c
 SERVER_SOURCES  = $(SRC_DIR)/sn1ff_service.c
 MONITOR_SOURCES = $(SRC_DIR)/sn1ff_monitor.c
+GREETER_SOURCES = $(SRC_DIR)/sn1ff_greeter.c
 CLEANER_SOURCES = $(SRC_DIR)/sn1ff_cleaner.c
 LICENSE_SOURCES = $(SRC_DIR)/sn1ff_license.c
 CONF_SOURCES    = $(SRC_DIR)/sn1ff_conf.c
@@ -132,6 +133,7 @@ CONF_SOURCES    = $(SRC_DIR)/sn1ff_conf.c
 CLIENT_OBJECTS  = $(OBJ_DIR)/sn1ff_client.o
 SERVER_OBJECTS  = $(OBJ_DIR)/sn1ff_service.o
 MONITOR_OBJECTS = $(OBJ_DIR)/sn1ff_monitor.o
+GREETER_OBJECTS = $(OBJ_DIR)/sn1ff_greeter.o
 CLEANER_OBJECTS = $(OBJ_DIR)/sn1ff_cleaner.o
 LICENSE_OBJECTS = $(OBJ_DIR)/sn1ff_license.o
 CONF_OBJECTS    = $(OBJ_DIR)/sn1ff_conf.o
@@ -194,6 +196,12 @@ sn1ff_monitor: $(MONITOR_OBJECTS) $(OBJECTS)
 	@echo "\n\nBuilding sn1ff_monitor ...\n\n"
 	#
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/$@ $(MONITOR_OBJECTS) $(OBJECTS) $(LDFLAGS)
+
+sn1ff_greeter: $(GREETER_OBJECTS) $(OBJECTS)
+	#
+	@echo "\n\nBuilding sn1ff_greeter ...\n\n"
+	#
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/$@ $(GREETER_OBJECTS) $(OBJECTS) $(LDFLAGS)
 
 sn1ff_cleaner: $(CLEANER_OBJECTS) $(OBJECTS)
 	#
@@ -325,6 +333,7 @@ deb-server-build:
 	cp $(BIN_DIR)/sn1ff_service $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_monitor $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_client $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
+	cp $(BIN_DIR)/sn1ff_greeter $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_cleaner $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_license $(DEBIAN_SERVER_PKG_DIR)/usr/bin/
 	cp $(BIN_DIR)/sn1ff_conf $(DEBIAN_SERVER_PKG_DIR)/usr/bin/

@@ -76,7 +76,12 @@ fi
 # |                                                                |
 # '----------------------------------------------------------------'
 
-CHECKID="DISK USAGE"
+# Get script path/name, for the scripts "Check ID"
+
+SCRIPT_PATH="$(realpath "$0")"
+MARKER="check"
+checkid="$(sn_get_path_name "$SCRIPT_PATH" "$MARKER")"
+CHECKID="${checkid^^}"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -84,7 +89,7 @@ CHECKID="DISK USAGE"
 # |                                                                |
 # '----------------------------------------------------------------'
 
-SN_FILENAME=$(sn1ff_client -b)
+SN_FILENAME=$(sn1ff_client -b -i "$checkid")
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
@@ -117,7 +122,9 @@ WHITELIST=("/mnt/external" "/dev/lxd" "/opt/google/cros-containers" "/dev/.lxd-m
 THRESHOLD=95
 CHECK_FAILED=false
 
-while read -r filesystem size used avail use_perc mount_point; do
+# Note: size, used and avail are is not used, from the output from "df"
+
+while read -r filesystem _size _used _avail use_perc mount_point; do
   use_num=${use_perc%\%}
 
   skip=false

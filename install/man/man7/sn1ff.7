@@ -12,7 +12,7 @@ There are 2 main parts to sn1ff:
 .SS sn1ff server
 The sn1ff server runs the sn1ff_service systemd service. This collects files containing check results from remote sn1ff_client instances. The check results are delivered as files, to the sn1ff server using SCP with key authentication. The user (nologin) for the sn1ff_service, also acts for the SCP deliveries, using a "chroot jail" 
 .PP 
-The sn1ff server, also allows users who have membership of the sn1ff group, to run the sn1ff_monitor program from a terminal or remote SSH login. The sn1ff_monitor allows user, to view the received check results files in turn directly on the screen.
+The sn1ff server, also allows users who have membership of the sn1ff group, to run the sn1ff_monitor program from a terminal or remote SSH login. The sn1ff_monitor allows a user, to view the received check results files in turn directly on the screen.
 .PP
 .SS sn1ff client
 The sn1ff client, is intended primarily to be run, on other network hosts, sending the check results over the network to the sn1ff server. The check results are transported  using SCP with key authentication.
@@ -21,25 +21,27 @@ However, you can also run the client locally on the sn1ff server, to perform che
 .PP
 .SS Diagram
 .nf
-    .---------------------------------------------------------.
-    |                        sn1ff server                     | 
-    |                                                         |                             
-    |  User sn1ff:sn1ff                     User <you>:sn1ff  |        .---------------.
-    |  .---------------.                   .---------------.  |        |     YOU       |
+    .------------------------------------------------------------.
+    |                        sn1ff server                        | 
+    |                                                            |                             
+    |  User sn1ff:sn1ff                     User <you>:sn1ff     |     .---------------.
+    |  .---------------.                   .---------------.     |     |     YOU       |
     |  | sn1ff_service | ---- domain ----  | sn1ff_monitor |<--------- |  terminal or  |
-    |  '---------------'      socket       '---------------'  |        |  SSH login    |
-    |      systemd     \\                   /                  |        '---------------'
-    |                   \\                 /                   |                          
-    |                    \\               /                    |
-    |                  .-------------------.                  |
-    |          chroot  | upload directory  |                  | 
-    |          "jail"  '-------------------'                  |
-    |                            ^                            |
-    |                            |    .--------------.        |
-    |                            |--- | sn1ff_client |        |
-    |                            |    '--------------'        |
-    |                            |                            |
-    '----------------------------|----------------------------'
+    |  '---------------'      socket       '---------------'     |     |  SSH login    |
+    |      systemd    \\                    /                     |     '---------------'
+    |                  \\                  /                      |                          
+    |                   \\                v                       |     .----------------.
+    |                    \\     .--------------.---------------.  |     |    SCRIPTS     |
+    |                     v    | "watch" dir. | "export" dir. |<------ | for analytics, | 
+    |                  .--------'----------.---'--------------'  |     | alerting and   |
+    |          chroot  | upload directory  |                     |     | processing     |
+    |          "jail"  '-------------------'                     |     '----------------'
+    |                            ^                               |
+    |                            |    .--------------.           |
+    |                            |--- | sn1ff_client |           |
+    |                            |    '--------------'           |
+    |                            |                               |
+    '----------------------------|-------------------------------'
                                  |
                                  | SCP using key auth
                                  |
@@ -58,6 +60,7 @@ For details of installation and example checks, see the sn1ff Github repository:
 .SS Other related pages:
 .BR sn1ff_service (8),
 .BR sn1ff_cleaner (8),
+.BR sn1ff_greeter (8),
 .BR sn1ff_monitor (1),
 .BR sn1ff_client (1),
 .BR sn1ff_license (1),

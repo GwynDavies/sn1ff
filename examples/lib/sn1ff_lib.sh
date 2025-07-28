@@ -300,3 +300,15 @@ sn_is_sn1ff_client() {
     return 1
   fi
 }
+
+# Function(s) to get the script path / name
+
+sn_get_path_name() {
+  local script_path="$1"
+  local marker="$2"
+
+  local relative_path
+  relative_path="$(echo "$script_path" | sed -n "s|.*/$marker/\\(.*\\)|\\1|p")"
+
+  echo "$relative_path"
+}

@@ -65,6 +65,7 @@ void print_usage(int level, char *program_name) {
              "  See man pages:\n"
              "    man (8) sn1ff_service\n"
              "    man (7) sn1ff\n"
+             "    man (8) sn1ff_greeter\n"
              "    man (8) sn1ff_cleaner\n"
              "    man (1) sn1ff_client\n"
              "    man (1) sn1ff_monitor\n"
@@ -178,20 +179,20 @@ int get_message(int client_sock, char *msg_buffer) {
  *
  * @param client_sock    socket to communicate to the client with
  * @return  0 success
- *         -1 Could not list check results files uploads dir
+ *         -1 Could not list check results files dir
  */
-int handle_msg_list(int client_sock, const char *sn1ff_files_dir) {
+int handle_msg_list(int client_sock, const char *sn1ff_watch_files_dir) {
   MultiString ms;
   cn_multistr_init(&ms);
 
   // Get list of sn1ff files
 
-  int status = sn_dir_list_files(sn1ff_files_dir, &ms);
+  int status = sn_dir_list_files(sn1ff_watch_files_dir, &ms);
 
   if (status != 0) {
     cn_log_msg(LOG_ERR, __func__,
-               "Could not list check results files, uploads dir -> %s <-",
-               __func__, sn1ff_files_dir);
+               "Could not list check results files, watch dir -> %s <-",
+               __func__, sn1ff_watch_files_dir);
     return -1;
   }
 
@@ -235,9 +236,9 @@ int handle_msg_list(int client_sock, const char *sn1ff_files_dir) {
  * @return  0 Non QUIT message (msg) received and  processed
  *          1 QUIT message (msg) received
  *         -1 Client disconnected
- *         -2 Could not list check results files, uploads dir
+ *         -2 Could not list check results files
  */
-int handle_msg(int client_sock, const char *sn1ff_files_dir) {
+int handle_msg(int client_sock, const char *sn1ff_watch_files_dir) {
   char msg_buffer[256] = {'\0'};
   int result = get_message(client_sock, msg_buffer);
 
@@ -247,10 +248,10 @@ int handle_msg(int client_sock, const char *sn1ff_files_dir) {
     // Message LIST
 
     if (strcmp(msg_buffer, "LIST") == 0) {
-      if (handle_msg_list(client_sock, sn1ff_files_dir) != 0) {
+      if (handle_msg_list(client_sock, sn1ff_watch_files_dir) != 0) {
         cn_log_msg(LOG_ERR,
-                   "Could not list check results files, uploads dir -> %s <-",
-                   sn1ff_files_dir);
+                   "Could not list check results files in dir -> %s <-",
+                   sn1ff_watch_files_dir);
         return -1;
       }
     }
@@ -267,12 +268,36 @@ int handle_msg(int client_sock, const char *sn1ff_files_dir) {
       // TODO: Add error handling here
       char *tokens[3];
       cn_string_split(msg_buffer, tokens);
-      sn_file_delete(sn1ff_files_dir, tokens[1]);
+      sn_file_delete(sn1ff_watch_files_dir, tokens[1]);
     }
 
     return 0;
   } else
     return result;
+}
+
+/*----------------------------------------------------------------.
+ |                                                                |
+ | Greeter process                                                |
+ |                                                                |
+ '----------------------------------------------------------------*/
+
+int do_greeter_process(void) {
+  // Set the child process to be terminated when the parent exits
+
+  if (prctl(PR_SET_PDEATHSIG, SIGKILL) == -1) {
+    cn_log_msg(LOG_ERR, __func__,
+               "'prctl' failed, strerror(errno) -> %m <- Exiting ...");
+    return EXIT_FAILURE;
+  }
+
+  // Exec sn1ff_rreeter
+
+  execlp("/usr/bin/sn1ff_greeter", "sn1ff_greeter", (char *)NULL);
+  cn_log_msg(LOG_ERR, __func__,
+             "'execlp' failed for greeter process, strerror(errno) -> %m <- "
+             "Exiting ...");
+  return EXIT_FAILURE;
 }
 
 /*----------------------------------------------------------------.
@@ -305,7 +330,7 @@ int do_cleaner_process(void) {
  |                                                                |
  '----------------------------------------------------------------*/
 
-int handle_client(int client_sock, const char *sn1ff_files_dir) {
+int handle_client(int client_sock, const char *sn1ff_watch_files_dir) {
   // Set the child process to be terminated when the parent exits
 
   if (prctl(PR_SET_PDEATHSIG, SIGKILL) == -1) {
@@ -315,7 +340,7 @@ int handle_client(int client_sock, const char *sn1ff_files_dir) {
   }
 
   while (1) {
-    int status = handle_msg(client_sock, sn1ff_files_dir);
+    int status = handle_msg(client_sock, sn1ff_watch_files_dir);
 
     if (status == 1 || status == -1) {
       cn_log_msg(LOG_ERR, __func__,
@@ -354,7 +379,8 @@ void cleanup() {
  '----------------------------------------------------------------*/
 
 int main(int argc, char *argv[]) {
-  char sn1ff_files_dir[256] = {'\0'};
+  // char sn1ff_upload_files_dir[256] = {'\0'};
+  char sn1ff_watch_files_dir[256] = {'\0'};
 
   /*
    * Setup cleanup handler
@@ -382,11 +408,11 @@ int main(int argc, char *argv[]) {
   cn_log_msg(LOG_DEBUG, __func__, "Starting ...");
 
   /*
-   * Get uploads dir to receive check results files
+   * Get upload dir to receive check results files
    */
 
-  strncpy(sn1ff_files_dir, sn_cfg_get_server_uploads_dir(),
-          sizeof(sn1ff_files_dir) - 1);
+  strncpy(sn1ff_watch_files_dir, sn_cfg_get_server_watch_dir(),
+          sizeof(sn1ff_watch_files_dir) - 1);
 
   /*
    * Process arguments
@@ -432,18 +458,34 @@ int main(int argc, char *argv[]) {
   }
 
   /*
+   * Fork-and-exec greeter process
+   */
+
+  pid_t greeter_pid = fork();
+  if (greeter_pid == -1) {
+    cn_log_msg(LOG_ERR, __func__,
+               "'fork' failed for greeter process, strerror(errno) -> %m <- "
+               "Exiting ...");
+    return EXIT_FAILURE;
+  }
+
+  if (greeter_pid == 0) {
+    do_greeter_process();
+  }
+
+  /*
    * Fork-and-exec cleaner process
    */
 
-  pid_t pid = fork();
-  if (pid == -1) {
+  pid_t cleaner_pid = fork();
+  if (cleaner_pid == -1) {
     cn_log_msg(LOG_ERR, __func__,
                "'fork' failed for cleaner process, strerror(errno) -> %m <- "
                "Exiting ...");
     return EXIT_FAILURE;
   }
 
-  if (pid == 0) {
+  if (cleaner_pid == 0) {
     do_cleaner_process();
   }
 
@@ -488,14 +530,14 @@ int main(int argc, char *argv[]) {
 
     // Fork
 
-    pid = fork();
-    if (pid == 0) {
+    pid_t client_pid = fork();
+    if (client_pid == 0) {
       // Child process starts here
-      handle_client(client_sock, sn1ff_files_dir);
+      handle_client(client_sock, sn1ff_watch_files_dir);
       cn_log_msg(LOG_DEBUG, __func__,
                  "Child process finished handling client - exiting");
       exit(0);
-    } else if (pid > 0) {
+    } else if (client_pid > 0) {
       // Parent process:continues here - close the client socket
       close(client_sock);
     } else {

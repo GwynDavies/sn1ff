@@ -55,9 +55,10 @@ void print_usage(int level, char *program_name) {
              "\n"
              "  See man pages:\n"
              "    man (1) sn1ff_monitor\n"
-             "    man (8) sn1ff\n"
-             "    man (7) sn1ff_service\n"
-             "    man (7) sn1ff_cleaner\n"
+             "    man (7) sn1ff\n"
+             "    man (8) sn1ff_service\n"
+             "    man (8) sn1ff_greeter\n"
+             "    man (8) sn1ff_cleaner\n"
              "    man (1) sn1ff_client\n"
              "  \n\n",
              program_name);
@@ -235,7 +236,7 @@ int main(int argc, char *argv[]) {
    * Get sn1ff files directory, so we can display the uploaded files
    */
 
-  strncpy(sn1ff_files_dir, sn_cfg_get_server_uploads_dir(),
+  strncpy(sn1ff_files_dir, sn_cfg_get_server_watch_dir(),
           sizeof(sn1ff_files_dir) - 1);
 
   /*

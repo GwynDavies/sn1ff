@@ -59,10 +59,10 @@ void print_usage(int level, char *program_name) {
       "%s is run by a systemd service, and is not meant for interactive use\n"
       "\n"
       "  See man pages:\n"
-      "    man (8) sn1ff_cleaner\n"
-      "    man (7) sn1ff\n"
-      "    man (8) sn1ff_service\n"
       "    man (8) sn1ff_greeter\n"
+      "    man (7) sn1ff\n"
+      "    man (8) sn1ff_cleaner\n"
+      "    man (8) sn1ff_service\n"
       "    man (1) sn1ff_client\n"
       "    man (1) sn1ff_monitor\n"
       "  \n\n",
@@ -76,26 +76,24 @@ void print_usage(int level, char *program_name) {
  '----------------------------------------------------------------*/
 
 /**
- * Process LIST message from client, by supplying the names of
- * available sn1ff files
- *
- * @param [i] client_sock    socket to communicate to the client with
- * @return                   none
+ * Move files to the "watch" and "data" directories
  */
-void clean_files(const char *sn1ff_watch_files_dir) {
+void copy_files(const char *sn1ff_upload_files_dir,
+                const char *sn1ff_watch_files_dir,
+                const char *sn1ff_export_files_dir) {
   MultiString ms;
 
   while (true) {
     cn_multistr_init(&ms);
 
-    // Get list of sn1ff files
+    // Get list of sn1ff files, in the upload directory
 
-    int status = sn_dir_list_files(sn1ff_watch_files_dir, &ms);
+    int status = sn_dir_list_files(sn1ff_upload_files_dir, &ms);
 
     if (status != 0) {
       cn_log_msg(LOG_ERR, __func__,
-                 "Error listing snff_watch_files directory -> %s <-",
-                 sn1ff_watch_files_dir);
+                 "Error listing snff_upload_files directory -> %s <-",
+                 sn1ff_upload_files_dir);
       EXIT_FAILURE;
     }
 
@@ -103,23 +101,24 @@ void clean_files(const char *sn1ff_watch_files_dir) {
       for (size_t i = 0; i < ms.num_strings; ++i) {
         cn_log_msg(LOG_DEBUG, __func__, "Inspecting file %s",
                    cn_multistr_getstr(&ms, i));
-        CName name;
-        sn_cname_parse_name(cn_multistr_getstr(&ms, i), &name);
 
-        time_t epoch_bin;
-        sn_cname_get_epoch_bin(&name, &epoch_bin);
-
-        // Delete sn1ff file if it has "expired"
-
-        if (cn_time_epoch_expired(epoch_bin)) {
-          cn_log_msg(LOG_DEBUG, __func__, "Deleting file %s",
-                     cn_multistr_getstr(&ms, i));
-          sn_file_delete(sn1ff_watch_files_dir, cn_multistr_getstr(&ms, i));
-          sleep(1);
+        if (sn_cfg_watch_enabled()) {
+          sn_file_copy(sn1ff_upload_files_dir, sn1ff_watch_files_dir,
+                       cn_multistr_getstr(&ms, i));
         }
+
+        if (sn_cfg_export_enabled()) {
+          sn_file_copy(sn1ff_upload_files_dir, sn1ff_export_files_dir,
+                       cn_multistr_getstr(&ms, i));
+        }
+
+        cn_log_msg(LOG_DEBUG, __func__, "Deleting file %s",
+                   cn_multistr_getstr(&ms, i));
+        sn_file_delete(sn1ff_upload_files_dir, cn_multistr_getstr(&ms, i));
+        sleep(1);
       }
     } else {
-      cn_log_msg(LOG_DEBUG, __func__, "No sn1ff files to inspect\n");
+      cn_log_msg(LOG_DEBUG, __func__, "No sn1ff files to copy\n");
     }
 
     cn_multistr_free(&ms);
@@ -134,12 +133,10 @@ void clean_files(const char *sn1ff_watch_files_dir) {
  |                                                                |
  '----------------------------------------------------------------*/
 
-// TODO: Review if this value is sufficient, and document
-#define SN1FF_FILES_DIR_LENGTH 1024
-#define SN1FF_FILES_DIR_LENGTH_D (SN1FF_FILES_DIR_LENGTH + 1)
-
 int main(int argc, char *argv[]) {
-  char sn1ff_watch_files_dir[256] = {'\0'};
+  const char *sn1ff_upload_files_dir;
+  const char *sn1ff_watch_files_dir;
+  const char *sn1ff_export_files_dir;
 
   /*
    * Load config file
@@ -161,15 +158,26 @@ int main(int argc, char *argv[]) {
   cn_log_msg(LOG_DEBUG, __func__, "Starting ...");
 
   /*
-   * Get sn1ff files directory, so we can clean the uploaded files
+   * Get sn1ff "upload", "watch" and "export" files directories
+   *
+   * This is so we can simply, move files from "upload" directory, to the
+   * "watch" and "export" directories
    */
 
-  if (cn_string_cp(sn1ff_watch_files_dir, sizeof(sn1ff_watch_files_dir) - 1,
-                   sn_cfg_get_server_watch_dir()) != 0) {
-    cn_log_msg(LOG_ERR, __func__,
-               "Could not set sn1ff_watch_files_dir from config -> %s <-",
-               sn_cfg_get_server_watch_dir());
-  }
+  sn1ff_upload_files_dir = sn_cfg_get_server_upload_dir();
+  cn_log_msg(LOG_INFO, __func__,
+             "Have sn1ff_upload_files_dir from config -> %s <-",
+             sn1ff_upload_files_dir);
+
+  sn1ff_watch_files_dir = sn_cfg_get_server_watch_dir();
+  cn_log_msg(LOG_INFO, __func__,
+             "Have sn1ff_watch_files_dir from config -> %s <-",
+             sn1ff_watch_files_dir);
+
+  sn1ff_export_files_dir = sn_cfg_get_server_export_dir();
+  cn_log_msg(LOG_INFO, __func__,
+             "Have sn1ff_export_files_dir from config -> %s <-",
+             sn1ff_export_files_dir);
 
   /*
    * Process arguments
@@ -214,7 +222,8 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  clean_files(sn1ff_watch_files_dir);
+  copy_files(sn1ff_upload_files_dir, sn1ff_watch_files_dir,
+             sn1ff_export_files_dir);
 
   // Exit
 
