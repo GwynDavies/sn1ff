@@ -81,7 +81,7 @@ Test(sn_file, write_header_null_hdr, .init = setup_test_dir) {
 Test(sn_file, begin_creates_file, .init = setup_test_dir,
      .fini = teardown_test_dir) {
   char path[256] = {0};
-  int result = sn_file_begin(path);
+  int result = sn_file_begin(path, "/debug/checkid.sh");
   cr_assert_eq(result, 0);
 
   FILE *f = fopen(path, "r");

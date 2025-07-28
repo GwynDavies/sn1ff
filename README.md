@@ -58,7 +58,7 @@ DESCRIPTION
        a "chroot jail"
 
        The  sn1ff server, also allows users who have membership of the sn1ff group, to run the sn1ff_monitor pro‐
-       gram from a terminal or remote SSH login. The sn1ff_monitor allows user, to view the  received  check  re‐
+       gram from a terminal or remote SSH login. The sn1ff_monitor allows a user, to view the received  check  re‐
        sults files in turn directly on the screen.
 
    sn1ff client
@@ -69,25 +69,27 @@ DESCRIPTION
        itself.
 
    Diagram
-           .---------------------------------------------------------.
-           |                        sn1ff server                     |
-           |                                                         |
-           |  User sn1ff:sn1ff                     User <you>:sn1ff  |        .---------------.
-           |  .---------------.                   .---------------.  |        |     YOU       |
+           .------------------------------------------------------------.
+           |                        sn1ff server                        |
+           |                                                            |
+           |  User sn1ff:sn1ff                     User <you>:sn1ff     |     .---------------.
+           |  .---------------.                   .---------------.     |     |     YOU       |
            |  | sn1ff_service | ---- domain ----  | sn1ff_monitor |<--------- |  terminal or  |
-           |  '---------------'      socket       '---------------'  |        |  SSH login    |
-           |      systemd     \                   /                  |        '---------------'
-           |                   \                 /                   |
-           |                    \               /                    |
-           |                  .-------------------.                  |
-           |          chroot  | upload directory  |                  |
-           |          "jail"  '-------------------'                  |
-           |                            ^                            |
-           |                            |    .--------------.        |
-           |                            |--- | sn1ff_client |        |
-           |                            |    '--------------'        |
-           |                            |                            |
-           '----------------------------|----------------------------'
+           |  '---------------'      socket       '---------------'     |     |  SSH login    |
+           |      systemd    \                    /                     |     '---------------'
+           |                  \                  /                      |
+           |                   \                v                       |     .----------------.
+           |                    \     .--------------.---------------.  |     |    SCRIPTS     |
+           |                     v    | "watch" dir. | "export" dir. |<------ | for analytics, |
+           |                  .--------'----------.---'--------------'  |     | alerting and   |
+           |          chroot  | upload directory  |                     |     | processing     |
+           |          "jail"  '-------------------'                     |     '----------------'
+           |                            ^                               |
+           |                            |    .--------------.           |
+           |                            |--- | sn1ff_client |           |
+           |                            |    '--------------'           |
+           |                            |                               |
+           '----------------------------|-------------------------------'
                                         |
                                         | SCP using key auth
                                         |

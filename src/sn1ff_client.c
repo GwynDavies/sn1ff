@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
   bool is_begin_file = false; // -b Begin file
   bool is_end_file = false;   // -e End file, SCP to remote sn1ff server
 
+  char *arg_i = NULL; // ID of the sn1ff check
   char *arg_f = NULL; // File path of sn1ff file
   char *arg_s = NULL; // Status of sn1ff file
 
@@ -131,11 +132,14 @@ int main(int argc, char *argv[]) {
   // Loop through command-line arguments using getopt
 
   int opt;
-  while ((opt = getopt(argc, argv, "hbef:s:t:a:")) != -1) {
+  while ((opt = getopt(argc, argv, "hbef:s:t:a:i:")) != -1) {
     switch (opt) {
       // Begin file
     case 'b':
       is_begin_file = true;
+      break;
+    case 'i': // File path of SN1FF file
+      arg_i = optarg;
       break;
 
       // End file
@@ -177,7 +181,7 @@ int main(int argc, char *argv[]) {
 
   else if (is_begin_file) {
     char file_path[FNAME_PATH_LENGTH_D] = {'\0'};
-    int result = sn_file_begin(file_path);
+    int result = sn_file_begin(file_path, arg_i);
     if (result != 0) {
       fprintf(stderr, "Could not begin sn1ff file -> %s <-\n", file_path);
       return EXIT_FAILURE;
@@ -225,7 +229,7 @@ int main(int argc, char *argv[]) {
     char new_dir_path[FNAME_PATH_LENGTH_D] = {'\0'};
     memset(new_dir_path, '\0', (FNAME_PATH_LENGTH_D) * sizeof(char));
 
-    sn_fpath_genfull(arg_f, arg_s, sn_cfg_get_server_uploads_dir(), arg_t_i,
+    sn_fpath_genfull(arg_f, arg_s, sn_cfg_get_server_upload_dir(), arg_t_i,
                      new_dir_path);
 
     // Copy the file
@@ -296,8 +300,8 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
 
-    sn_fpath_genfull(arg_f, arg_s, sn_cfg_get_server_uploads_base_dir(),
-                     arg_t_i, new_dir_path);
+    sn_fpath_genfull(arg_f, arg_s, sn_cfg_get_server_upload_base_dir(), arg_t_i,
+                     new_dir_path);
 
     // Build SCP path
 

@@ -30,7 +30,7 @@ Test(sn_fpath, valid_status_values) {
   // char arg_f = "123e4567-e89b-12d3-a456-426614174000_ALRT_1745949432.snff"
   char arg_f[] = "/tmp/sn1ff/123e4567-e89b-12d3-a456-426614174000.snff";
   char arg_s[] = "ALRT";
-  char arg_d[] = "/home/chroot/sn1ff/uploads";
+  char arg_d[] = "/home/chroot/sn1ff/upload";
   int arg_t = 1;
   char new_dest[256];
 
@@ -38,7 +38,7 @@ Test(sn_fpath, valid_status_values) {
   // calculated dynamically, using current epoch time plus the arg_t offset
   // added to it:
   //
-  //   /home/chroot/sn1ff/uploads/123e4567-e89b-12d3-a456-426614174000_ALRT_1746739447.snff
+  //   /home/chroot/sn1ff/upload/123e4567-e89b-12d3-a456-426614174000_ALRT_1746739447.snff
   //
   // So we will assert using a regex
   //
@@ -47,7 +47,7 @@ Test(sn_fpath, valid_status_values) {
 
   regex_t regex;
   const char *pattern =
-      "^/home/chroot/sn1ff/uploads/"
+      "^/home/chroot/sn1ff/upload/"
       "[0-9a-fA-F\\-]+_(ALRT|WARN|OKAY|NONE)_17[0-9]{8}\\.snff$";
 
   int ret = regcomp(&regex, pattern, REG_EXTENDED);
@@ -56,6 +56,6 @@ Test(sn_fpath, valid_status_values) {
   ret = regexec(&regex, new_dest, 0, NULL, 0);
   regfree(&regex);
 
-  //printf("*** %s ***\n", new_dest);
+  // printf("*** %s ***\n", new_dest);
   cr_assert_eq(ret, 0, "The string did not match the expected pattern");
 }

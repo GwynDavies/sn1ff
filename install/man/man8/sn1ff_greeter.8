@@ -1,0 +1,30 @@
+.TH SN1FF_GREETER 8
+.SH NAME
+sn1ff_greeter \- daemon service run utility, to make received check results files available
+.SH SYNOPSIS
+.B sn1ff_greeter
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+Run directly by the sn1ff_service to move the received check results files, to the sn1ff "watch" and "export" directories. This allows users to see and monitor the check results in the "watch" directory, and process/analyze the check results in the "export" directory. It is not meant typically to be run directly by the user.
+.SH OPTIONS
+.TP
+.B \-h
+Show available help information.
+.SH FURTHER INFORMATION
+For details of installation and example checks etc., see the sn1ff Github repository:
+.PP
+.B https://github.com/GwynDavies/sn1ff
+.PP
+.SH SEE ALSO
+.SS Other related pages:
+.BR sn1ff_service (8),
+.BR sn1ff_cleaner (8),
+.BR sn1ff (7),
+.BR sn1ff_monitor (1),
+.BR sn1ff_client (1),
+.BR sn1ff_license (1),
+.BR sn1ff_conf (1).
+.SH AUTHOR
+Written by Gwyn Davies
+.PP
+.B https://github.com/GwynDavies/sn1ff

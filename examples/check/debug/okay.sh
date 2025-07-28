@@ -43,7 +43,7 @@ source "$(dirname "$0")/../../lib/sn1ff_lib.sh"
 
 # Override default TTL values (minutes)
 
-sn_set_okay_ttl 1
+sn_set_okay_ttl 5
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -76,7 +76,12 @@ fi
 # |                                                                |
 # '----------------------------------------------------------------'
 
-CHECKID="DEBUG OKAY"
+# Get script path/name, for the scripts "Check ID"
+
+SCRIPT_PATH="$(realpath "$0")"
+MARKER="check"
+checkid="$(sn_get_path_name "$SCRIPT_PATH" "$MARKER")"
+CHECKID="${checkid^^}"
 
 # .----------------------------------------------------------------.
 # |                                                                |
@@ -84,7 +89,7 @@ CHECKID="DEBUG OKAY"
 # |                                                                |
 # '----------------------------------------------------------------'
 
-SN_FILENAME=$(sn1ff_client -b)
+SN_FILENAME=$(sn1ff_client -b -i "$checkid")
 exit_code=$?
 
 if [[ $exit_code -ne 0 ]]; then
